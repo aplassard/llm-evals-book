@@ -263,15 +263,15 @@ log_info "Transcript renamed and copied to raw notes: $raw_notes_dir/$filename"
 transcript_contents=$(cat "$transcript_file")
 
 payload_notes=$(jq -n \
-  --arg system "You transform walking note transcripts into structured notes. Respond ONLY with valid JSON containing keys 'notes', 'research_topics', and 'important_articles'." \
-  --arg transcript "$transcript_contents" \
+  --arg system "You are processing a transcription of impromptu spoken walking notes. Produce structured planning artifacts to turn the raw transcript into actionable writing material. Respond ONLY with valid JSON using this shape: {\"text_summary\": string, \"notes\": [string], \"articles_to_find\": [{\"name\": string, \"details\": string, \"status\": \"known\"|\"unknown\"}], \"topics_to_review\": [{\"topic\": string, \"details\": [string]}]}. Make the summary concise but faithful to the audio. Notes must be cleaned sentences capturing core ideas. Articles should include whether the reference is known (explicitly named) or unknown (needs research) and what to look for. Topics should gather related follow-up ideas in their detail lists. Use Markdown-free plain text in strings." \
+  --arg transcript "This is a transcription of audio walking notes. Convert it into useful references for writing projects. Transcript:\n$transcript_contents" \
   '{
     model: "openai/gpt-5-mini",
     temperature: 0.2,
     response_format: {type: "json_object"},
     messages: [
       {role: "system", content: $system},
-      {role: "user", content: "Transcript:\n" + $transcript}
+      {role: "user", content: $transcript}
     ]
   }')
 
@@ -298,7 +298,7 @@ if ! echo "$notes_content" | jq '.' > "$cleaned_path"; then
   exit 1
 fi
 
-required_keys=(notes research_topics important_articles)
+required_keys=(text_summary notes articles_to_find topics_to_review)
 for key in "${required_keys[@]}"; do
   if ! jq -e --arg key "$key" 'has($key)' < "$cleaned_path" >/dev/null; then
     echo "Error: structured notes missing required key '$key'." >&2
