@@ -1,0 +1,104 @@
+{
+  "text_summary": "LLM healing is a pattern where one LLM corrects or repairs the output of another LLM (or the same LLM) instead of building exhaustive structured logic to handle all output failures. Typical workflow: primary LLM emits a response; you try to parse it into the expected format (e.g., JSON); if parsing fails, you send the expected schema/format, the raw response, and the parsing error to a healer LLM that returns a corrected output adhering to the format. This approach simplifies handling formatting/structural errors and can be presented as a brief aside in a chapter, ideally with a short example or demo.",
+  "notes": [
+    "LLM healing uses an LLM as a post-processor to fix formatting and structural errors in another LLM's output.",
+    "Workflow: generate output → attempt to parse (e.g., JSON) → on parse failure, send expected format, actual output, and parse errors to a healer LLM → receive corrected output.",
+    "The healer should ideally return only the corrected code/format to minimize downstream parsing complexity.",
+    "This approach avoids constructing exhaustive parsing logic for every possible malformed response.",
+    "LLM healing is particularly useful for enforcing strict output schemas like JSON, CSV, or application-specific formats.",
+    "You should check how widespread the term/concept is and find prior art or similar patterns (self-correction, iterative refinement, output repair).",
+    "Include a concise aside in the chapter describing the concept and a short example that demonstrates a parse failure and subsequent healing.",
+    "Consider testing a live example to validate the approach and record common failure cases for documentation."
+  ],
+  "articles_to_find": [
+    {
+      "name": "OpenAI Function Calling documentation",
+      "details": "Official documentation about function calling / structured output features from OpenAI; compare built-in function/schema enforcement to the healer pattern.",
+      "status": "known"
+    },
+    {
+      "name": "JSON schema validation libraries (AJV, jsonschema)",
+      "details": "Practical tooling references for validating JSON outputs; include usage examples for detecting parse/validation errors to feed into the healer.",
+      "status": "known"
+    },
+    {
+      "name": "Papers/articles on LLM self-correction, iterative refinement, or self-consistency",
+      "details": "Find academic or industry papers that cover methods where LLMs revise their outputs, or ensembles/iterative approaches for correction and consistency.",
+      "status": "unknown"
+    },
+    {
+      "name": "Blog posts or pattern writeups on 'output repair' or 'LLM output post-processing'",
+      "details": "Search engineering blogs, GitHub repos, and technical writeups that implement LLM-based output repairers or validators (examples, prompts, recipes).",
+      "status": "unknown"
+    },
+    {
+      "name": "Example GitHub repos demonstrating JSON repair using LLMs",
+      "details": "Look for code examples that implement a generate-validate-heal loop (including prompt templates and error-handling code).",
+      "status": "unknown"
+    },
+    {
+      "name": "Research on robustness and failure modes of LLM outputs",
+      "details": "Papers or reports cataloguing common structural/formatting failures and mitigation strategies to motivate the healer approach.",
+      "status": "unknown"
+    }
+  ],
+  "topics_to_review": [
+    {
+      "topic": "Implementation patterns",
+      "details": [
+        "Single-model vs. separate-model healer: tradeoffs in latency, cost, and consistency.",
+        "Prompt templates for the healer (what to include: expected schema, original output, parse error, examples of correct output).",
+        "When the healer should return only the corrected payload vs. a diagnostic plus corrected payload.",
+        "Retries and loop design: limit number of healing attempts and detect irrecoverable outputs."
+      ]
+    },
+    {
+      "topic": "Error detection and validation",
+      "details": [
+        "How to detect failures reliably: JSON parse errors, schema validation errors, missing required fields, type mismatches.",
+        "Using schema validators (JSON Schema, Protobuf, Avro) to generate structured parse errors to feed the healer.",
+        "Logging and observability to understand frequent failure modes."
+      ]
+    },
+    {
+      "topic": "Prompt engineering for the healer LLM",
+      "details": [
+        "Include explicit instructions to only output the corrected format (no commentary).",
+        "Provide positive and negative examples (good vs. bad JSON) for few-shot prompting.",
+        "Techniques to minimize hallucination: require strict adherence to schema, include validation as part of prompt."
+      ]
+    },
+    {
+      "topic": "Alternatives and complements",
+      "details": [
+        "Built-in function-calling / structured-output features from providers vs. healer approach.",
+        "Post-processing with deterministic parsers or regex as cheaper fallbacks.",
+        "Hybrid systems: validator + deterministic fixer + LLM healer for complex repairs."
+      ]
+    },
+    {
+      "topic": "Evaluation and metrics",
+      "details": [
+        "Define success metrics: parse rate before/after healing, time to heal, number of healing attempts, cost per healed output.",
+        "Design A/B tests to compare healer vs. enhanced prompt/schema enforcement.",
+        "Collect examples of failure cases for continuous prompt improvement."
+      ]
+    },
+    {
+      "topic": "User experience and UX considerations",
+      "details": [
+        "When to surface healer failures to users vs. silently auto-correcting.",
+        "How to present corrected output provenance and confidence to downstream consumers.",
+        "Impact on downstream systems that rely on strict formats."
+      ]
+    },
+    {
+      "topic": "Example & demo planning",
+      "details": [
+        "Design a small reproducible example: prompt, expected JSON schema, sample malformed output, healer prompt, and healed result.",
+        "Decide on models and cost constraints for the demo (local smaller model vs. API).",
+        "Prepare a fail case to show limits of healing and when manual intervention is needed."
+      ]
+    }
+  ]
+}
