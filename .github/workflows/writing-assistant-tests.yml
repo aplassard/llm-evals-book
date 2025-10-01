@@ -1,0 +1,31 @@
+name: Writing Assistant Tests
+
+on:
+  pull_request:
+    paths:
+      - "writing-assistant/**"
+      - ".github/workflows/writing-assistant-tests.yml"
+      - "pyproject.toml"
+      - "uv.lock"
+
+jobs:
+  run-pytests:
+    name: Run Writing Assistant CLI tests
+    runs-on: ubuntu-latest
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: python -m pip install --upgrade pip uv
+
+      - name: Run writing assistant tests
+        run: uv run pytest writing-assistant/tests -k article_agent_cli
