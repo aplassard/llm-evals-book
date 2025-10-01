@@ -1,0 +1,94 @@
+{
+  "text_summary": "The speaker proposes an \"LLM healing\" pattern: instead of building exhaustive structured logic to guarantee perfectly formatted outputs, let the LLM produce an answer, attempt to parse/validate it (for example as JSON), and if parsing fails send the original output plus the expected format back to the model (the \"healer\") to correct the formatting. The healed result is then returned. The idea is to rely on the model to fix its own formatting errors rather than pre-coding every corner case; an example for a chapter would be helpful.",
+  "notes": [
+    "LLM healing = using the model to repair its own output rather than encoding exhaustive parser logic.",
+    "Typical workflow: LLM produces a response; attempt to parse/validate (e.g., parse JSON); on failure, submit the original output plus the expected format to an LLM healer and request corrected output; return only the corrected, properly formatted result.",
+    "This avoids trying to handle every possible output mistake with manual logic and can simplify handling of formatting errors.",
+    "Implementation requires reliable detection of parse/format failures and a prompt that clearly conveys the expected schema to the healer.",
+    "Potential issues: LLMs can still produce silly or incorrect corrections; healing can mask semantic errors if only formatting is fixed.",
+    "Use cases: when the output must match a strict machine-readable schema (JSON, YAML, CSV, etc.) and small format fixes suffice.",
+    "For a chapter aside, include a concise, runnable example (pseudocode or minimal code) showing the produce-validate-heal-return loop.",
+    "Log both the original failure and healed result for debugging and to detect systematic healing failures.",
+    "Consider fallback strategies if the healer cannot produce a valid result (retry with clarifying instructions, stricter schema enforcement, or reject and escalate).",
+    "Frame the pattern as a pragmatic tradeoff: less upfront engineering for handling edge cases, with reliance on model reliability and monitoring."
+  ],
+  "articles_to_find": [
+    {
+      "name": "LLM output repair / self-healing pattern (overview articles or blog posts)",
+      "details": "Look for engineering blogs and case studies describing the pattern of letting an LLM reformat or repair its own outputs after validation failures; examples and pros/cons.",
+      "status": "unknown"
+    },
+    {
+      "name": "OpenAI (or other major provider) docs on output parsers, function calling, and response validation",
+      "details": "Find official documentation and examples about guaranteed output formats, output parsing, schema guidance, function-calling APIs, and recommended validation patterns.",
+      "status": "unknown"
+    },
+    {
+      "name": "JSON Schema and schema-guided validation best practices",
+      "details": "Resources explaining JSON Schema usage, validation libraries, and patterns for expressing expected formats to automated systems; include examples for validator-driven workflows.",
+      "status": "unknown"
+    },
+    {
+      "name": "Verifier/generator or two-step generation-and-verification research",
+      "details": "Search for academic papers or preprints on using separate verification models or iterative refinement loops to improve generation reliability (e.g., generator + verifier architectures).",
+      "status": "unknown"
+    },
+    {
+      "name": "Prompt engineering patterns for error correction and iterative refinement",
+      "details": "Guides and examples for prompts specifically crafted to repair or reformat outputs, including few-shot examples, system messages, and instructions for minimal-output corrections.",
+      "status": "unknown"
+    },
+    {
+      "name": "LangChain / Cohere / other SDK examples for output parsing and validators",
+      "details": "Practical library docs and examples that implement parse-validate-repair loops, including built-in output parsers, validators, and tools for chaining corrective steps.",
+      "status": "unknown"
+    },
+    {
+      "name": "Case studies showing failure modes when relying on model self-repair",
+      "details": "Concrete incidents or postmortems where using an LLM to correct its own output caused errors, misformatting, or semantic mistakes; useful for weighing tradeoffs.",
+      "status": "unknown"
+    }
+  ],
+  "topics_to_review": [
+    {
+      "topic": "Implementation details",
+      "details": [
+        "Pseudocode for produce -> validate -> heal -> return loop (including retries, backoff, and logging).",
+        "How to encode expected format/schema into the healer prompt (examples for JSON Schema, simple templates).",
+        "API usage patterns: synchronous vs asynchronous healing, cost and latency implications."
+      ]
+    },
+    {
+      "topic": "Prompt templates",
+      "details": [
+        "Minimal healer prompt that instructs the model to only return corrected JSON with no commentary.",
+        "Few-shot examples showing broken input and the desired corrected output.",
+        "System message and temperature settings to reduce hallucination during healing."
+      ]
+    },
+    {
+      "topic": "Failure modes and mitigation",
+      "details": [
+        "When the healer produces semantically incorrect but syntactically valid output and how to detect it.",
+        "Fallback strategies if healer repeatedly fails: stricter validation, human review, or reject-with-error.",
+        "Monitoring metrics to track healing effectiveness (success rate, edit distance, semantic checks)."
+      ]
+    },
+    {
+      "topic": "Examples to include in chapter",
+      "details": [
+        "A short runnable example that requests JSON, shows a malformed response, and demonstrates the healer producing corrected JSON.",
+        "A before/after pair illustrating how healing fixed only formatting vs requiring semantic correction.",
+        "A small table or bullets summarizing pros, cons, and when to use the pattern."
+      ]
+    },
+    {
+      "topic": "Evaluation and metrics",
+      "details": [
+        "Define metrics: parse success rate, number of healing iterations, costs and latency per healed response.",
+        "Human evaluation checklist to ensure healing doesn't introduce semantic errors.",
+        "A/B test designs to compare hardened parser vs LLM healing approach."
+      ]
+    }
+  ]
+}
