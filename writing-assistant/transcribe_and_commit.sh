@@ -422,7 +422,7 @@ repo_slug=$(derive_repo_slug "$origin_remote")
 if [[ -z "$repo_slug" ]]; then
   log_info "Unable to derive repository slug from $origin_remote; skipping issue automation."
 else
-  pr_number=$(gh pr view --json number --head "$branch_name" --jq '.number' || true)
+  pr_number=$(gh pr view "$branch_name" --json number --jq '.number' --repo "$repo_slug" 2>/dev/null || true)
   if [[ -z "$pr_number" ]]; then
     log_info "Unable to determine PR number for $branch_name; skipping issue automation."
   else
