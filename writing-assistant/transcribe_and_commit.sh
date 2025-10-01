@@ -29,6 +29,20 @@ log_info() {
   fi
 }
 
+derive_repo_slug() {
+  local remote_url="$1"
+  local slug=""
+
+  remote_url=${remote_url%.git}
+  if [[ "$remote_url" =~ ^git@github.com:(.+)$ ]]; then
+    slug="${BASH_REMATCH[1]}"
+  elif [[ "$remote_url" =~ ^https://github.com/(.+)$ ]]; then
+    slug="${BASH_REMATCH[1]}"
+  fi
+
+  echo "$slug"
+}
+
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 repo_root=$(cd "${script_dir}/.." && pwd)
 
@@ -112,6 +126,12 @@ set +a
 if [[ -z "${OPENROUTER_API_KEY:-}" ]]; then
   echo "Error: OPENROUTER_API_KEY not set in environment." >&2
   log_info "OPENROUTER_API_KEY not present after sourcing .env."
+  exit 1
+fi
+
+if [[ -z "${GITHUB_TOKEN:-}" ]]; then
+  echo "Error: GITHUB_TOKEN not set in environment." >&2
+  log_info "GITHUB_TOKEN not present after sourcing .env."
   exit 1
 fi
 
@@ -379,6 +399,27 @@ fi
 popd >/dev/null
 
 log_info "Git operations complete."
+
+origin_remote=$(git -C "$repo_root" remote get-url origin)
+repo_slug=$(derive_repo_slug "$origin_remote")
+
+if [[ -z "$repo_slug" ]]; then
+  log_info "Unable to derive repository slug from $origin_remote; skipping issue automation."
+else
+  pr_number=$(gh pr view --json number --head "$branch_name" --jq '.number' || true)
+  if [[ -z "$pr_number" ]]; then
+    log_info "Unable to determine PR number for $branch_name; skipping issue automation."
+  else
+    log_info "Invoking GitHub issue agent for cleaned notes." 
+    if ! uv run --env-file .env python -m writing_assistant.github_issue_agent \
+      --json-path "$cleaned_path" \
+      --repo "$repo_slug" \
+      --pr-number "$pr_number"; then
+      echo "Warning: GitHub issue automation failed." >&2
+      log_info "GitHub issue automation failed."
+    fi
+  fi
+fi
 
 echo "Transcript saved to $transcript_dest"
 echo "Transcript copied to $raw_notes_dir/$filename"
