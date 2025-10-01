@@ -4,6 +4,7 @@ This directory contains automation utilities that support the walking-notes work
 
 - `transcribe_and_commit.sh` – converts an audio note into transcripts/clean notes and opens a PR.
 - `article_agent_cli.py` – runs a LangGraph research agent to turn reference requests into Zotero-ready metadata.
+- `research_issue_agent_cli.py` – triages follow-up issues, researches unchecked articles, and reports findings back to GitHub.
 
 ## Overview
 
@@ -109,6 +110,18 @@ uv run --env-file .env python writing-assistant/github_issue_agent_cli.py \
 ```
 
 This is useful for rerunning the workflow after editing the cleaned note or when testing changes.
+
+### Issue research agent CLI
+
+To revisit a GitHub issue and complete unchecked article tasks:
+
+```
+uv run --env-file .env python writing-assistant/research_issue_agent_cli.py \
+  --repo andrewplassard/llm-evals-book \
+  --issue 123
+```
+
+The agent reviews the "Articles to Find" checklist, chooses outstanding entries to research, invokes the article research workflow for each, comments on the issue with the results, and checks off the corresponding boxes. "Topics to Review" remain untouched for now.
 
 ## Git Workflow Details
 
