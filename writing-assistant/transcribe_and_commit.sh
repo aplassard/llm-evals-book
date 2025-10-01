@@ -219,8 +219,8 @@ whisper_cmd=(
 )
 
 if [[ $TEST_MODE -eq 1 ]]; then
-  log_info "Test mode enabled: using Whisper tiny/int8 configuration for faster runs."
-  whisper_cmd+=(--model tiny --device cpu --compute_type int8)
+  log_info "Test mode enabled: using Whisper tiny CPU configuration for faster runs."
+  whisper_cmd+=(--model tiny --device cpu --fp16 False)
 fi
 
 if ! "${whisper_cmd[@]}" >/dev/null 2>&1; then

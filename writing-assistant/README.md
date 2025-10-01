@@ -70,7 +70,7 @@ Options:
 
 - `--log-file PATH` – append detailed log lines (with timestamps) to `PATH`.
 - `--verbose` – echo log lines to stderr in addition to any file logging.
-- `--test` – switch dependent tooling (e.g. Whisper) to faster, lower-accuracy settings for dry runs.
+- `--test` – switch dependent tooling (e.g. Whisper tiny CPU model) to faster, lower-accuracy settings for dry runs.
 - `-h`, `--help` – display usage information.
 
 If `AUDIO_FILE` is omitted, the newest file in the audio directory is used. The script aborts if the Git working tree is dirty or if the target branch already exists.
