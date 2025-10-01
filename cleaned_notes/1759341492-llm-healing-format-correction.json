@@ -1,0 +1,108 @@
+{
+  "text_summary": "LLM healing is the practice of using an LLM to correct or reformat its own output rather than building exhaustive external parsing logic. The common workflow: generate a response, attempt to parse it (for example as JSON), detect parsing/formatting errors, then send the original response plus the expected schema and the parsing error to a 'healer' LLM prompt which returns corrected output in the required format. The method is especially useful for formatting-only errors and can be described briefly as an aside in a chapter, ideally with a short example or demonstration.",
+  "notes": [
+    "LLM healing uses an LLM to correct formatting or structural errors in an LLM-generated response instead of hand-coding many parsing rules.",
+    "Typical workflow: LLM generates response -> attempt to parse as JSON (or expected structure) -> if parsing fails, pass expected format, actual response, and parse error to healer LLM -> healer returns corrected output in the required format.",
+    "LLM healing focuses on post-hoc correction for formatting problems rather than trying to anticipate every failure case in parsing logic.",
+    "This approach reduces the need to implement exhaustive parsing fallbacks for every possible malformed output.",
+    "LLM healing is most appropriate for formatting/structure errors; content hallucination or logic errors may require different strategies.",
+    "Include LLM healing as a brief aside in the chapter with a short example if possible to illustrate the workflow.",
+    "An example implementation would try to return only the corrected JSON (or code) from the healer to keep downstream parsing simple.",
+    "Consider discussing trade-offs such as latency, cost of an extra call, and when to prefer function-calling / stricter schema enforcement instead."
+  ],
+  "articles_to_find": [
+    {
+      "name": "OpenAI function calling documentation",
+      "details": "Official docs on function calling and structured output from OpenAI (how to request structured responses and avoid free-form outputs). Useful to compare with LLM healing as an alternative or complement.",
+      "status": "known"
+    },
+    {
+      "name": "LangChain Output Parsers and validation patterns",
+      "details": "Docs and examples from LangChain showing output parsing utilities, JSON schema parsing, and validation workflows; compare patterns with LLM healing.",
+      "status": "known"
+    },
+    {
+      "name": "JSON Schema and parsing best practices",
+      "details": "Resources on JSON Schema usage and programmatic schema validation to detect parse errors that would trigger healing.",
+      "status": "known"
+    },
+    {
+      "name": "Papers or blog posts on LLM self-correction / self-refinement / self-feedback",
+      "details": "Search for literature that covers using LLMs to iteratively correct or refine their own outputs (terms to search: 'self-correction', 'self-refine', 'self-feedback', 'reflexion', 'iterative LLM improvement'). Look for both academic papers and engineering blog posts.",
+      "status": "unknown"
+    },
+    {
+      "name": "Articles on output sanitization and guardrails",
+      "details": "Practical engineering posts describing guardrails, output sanitization, and postprocessing strategies for LLM outputs; useful to position healing among other mitigation strategies.",
+      "status": "unknown"
+    },
+    {
+      "name": "Case studies or examples showing LLM healing in production",
+      "details": "Look for developer examples or open-source repos that implement the exact heal-on-parse-failure pattern, with sample prompts and error-handling logic.",
+      "status": "unknown"
+    },
+    {
+      "name": "Performance and cost analyses of multi-call LLM workflows",
+      "details": "Resources that discuss latency and cost trade-offs when adding extra LLM calls for validation/recovery versus stricter upfront prompting or function-calling.",
+      "status": "unknown"
+    }
+  ],
+  "topics_to_review": [
+    {
+      "topic": "Implementation details and example",
+      "details": [
+        "A minimal code example showing: initial prompt, parse attempt, detection of parse error, healer prompt format, and final corrected output parsing.",
+        "Suggested healer prompt templates that include: expected schema, original response, parse error, and instruction to output only corrected JSON.",
+        "Edge cases: partially-correct responses, responses with extraneous commentary, and how to instruct healer to strip commentary."
+      ]
+    },
+    {
+      "topic": "When to use LLM healing vs alternatives",
+      "details": [
+        "Compare with function-calling / strict schema enforcement features provided by some LLM APIs.",
+        "When to use healing for formatting errors vs additional checks for factual correctness or hallucinations.",
+        "Hybrid strategies: attempt function-calling first, fallback to healer if strict schema not supported or fails."
+      ]
+    },
+    {
+      "topic": "Failure modes and limitations",
+      "details": [
+        "Scenarios where healer may perpetuate or introduce errors instead of fixing them.",
+        "Risk of healer hallucinating content while 'fixing' format—how to constrain outputs and validate final result.",
+        "Costs: extra API calls, increased latency, and complexity of debugging multi-step interactions."
+      ]
+    },
+    {
+      "topic": "Prompt engineering for the healer LLM",
+      "details": [
+        "Best practices for succinct instructions that force output-only corrected format (e.g., 'Return only valid JSON matching this schema').",
+        "Using examples (few-shot) of bad output -> corrected output pairs to teach the healer expected behavior.",
+        "Techniques to minimize extraneous text from healer (system messages, explicit 'no commentary' instructions)."
+      ]
+    },
+    {
+      "topic": "Testing and validation",
+      "details": [
+        "Unit tests and integration tests to simulate malformed responses and verify healer returns valid outputs.",
+        "Metrics to measure effectiveness: correction success rate, additional latency, and cost per corrected item.",
+        "Monitoring: logging original output, parser error, healer prompt, and final corrected output for diagnoses."
+      ]
+    },
+    {
+      "topic": "Integration and architecture",
+      "details": [
+        "How to plug healer into existing pipelines (sync vs async flows), and whether to make healing optional or automatic.",
+        "Design patterns for retries, exponential backoff, and fallbacks when healer fails to produce valid output.",
+        "Considerations for streaming outputs and when healing is incompatible with streaming."
+      ]
+    },
+    {
+      "topic": "Ethical and safety considerations",
+      "details": [
+        "Ensuring healer doesn't introduce harmful content while correcting format; sanitization steps after healing.",
+        "Auditability: keeping original responses for traceability when healer changes content.",
+        "User expectations and transparency when automated corrections are applied."
+      ]
+    }
+  ]
+}
