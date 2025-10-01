@@ -98,6 +98,17 @@ After the PR is created, `transcribe_and_commit.sh` runs `python -m writing_assi
 
 Ensure `GITHUB_TOKEN` is configured for these API calls; if the agent step fails, the script logs a warning but leaves the PR untouched.
 
+You can also invoke the automation manually:
+
+```
+uv run --env-file .env python writing-assistant/github_issue_agent_cli.py \
+  --json-path cleaned_notes/1759323531-llm-healing-formatting-workflow.json \
+  --repo andrewplassard/llm-evals-book \
+  --pr-number 123
+```
+
+This is useful for rerunning the workflow after editing the cleaned note or when testing changes.
+
 ## Git Workflow Details
 
 - A temporary worktree is created from the base branch and removed automatically after completion.

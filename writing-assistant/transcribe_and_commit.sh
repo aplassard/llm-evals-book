@@ -411,7 +411,7 @@ else
     log_info "Unable to determine PR number for $branch_name; skipping issue automation."
   else
     log_info "Invoking GitHub issue agent for cleaned notes." 
-    if ! uv run --env-file .env python -m writing_assistant.github_issue_agent \
+    if ! uv run --env-file .env python writing-assistant/github_issue_agent_cli.py \
       --json-path "$cleaned_path" \
       --repo "$repo_slug" \
       --pr-number "$pr_number"; then
