@@ -1,0 +1,36 @@
+okay so i want to talk about the role of data in building large language model-based applications
+and how people should think about it in their work and in particular why
+evaluations are important for practitioners of large language models or using large
+language models and in particular like what i'm thinking about with this section is that the um
+like obviously data is important in training the models right you need data to train your
+watch language models it takes all this compute all that to do that but the average person who
+is the target audience for the book is not training models they're building applications on top of them
+and they want to build out a feedback loop and build out some insight into their applications
+so that they can have the visibility understand the cost understand where to gain where there's
+room for performance gains etc from the models and what i want to do with this section though
+is motivate the history of like evaluation data sets and things like that that were used
+both to train models and grow capabilities but also define and show what these models can do
+and i think the first example that i want to go through is the example of the mnist data set
+which is just digits right it's like a zero a two a seven black and white digit single digit and for a
+while that was a very hard problem to solve and you know that that was considered one of the challenging
+problems now it's obviously a trivial problem to solve for these models and where i want to start
+the internalization of this even 2006 with the hinton science paper and discussed how
+that paper used this data set to basically motivate and kick off the next 20 years of work up to where we
+are today and it also used a text data set for a new paper corpus or whatever but that was you know
+less exciting to me it was still important obviously but a little bit less so than the mnist piece of it
+uh after that i then want to go to talk about image net and the alex net paper where that one that data set really
+unlocked the um the convolutional neural networks and using gpus to train at a much larger scale
+than was able to before um and the history goes from there there's a really good paper that i think is
+worth mentioning or maybe it's not a paper maybe it's a blog post or whatever by jack morris i think
+was the author and it was titled there are no new ideas just new data sets and kind of the underlying
+premise of it is like much works in the space is not done by like having a brilliant new idea it's by
+having a new data set that then unlocks new problems that can be solved so you definitely want to grab that
+and use that um so after that i then want to go and discuss a few more benchmark examples could be
+good too maybe a text one obviously for lms um but then i want to discuss why this doesn't really work
+for evaluations and for like applications right these data sets obviously give you a hell to find
+ways to improve the model etc but that doesn't one-to-one correlate with can it do the job that is being
+asked of and there's a few reasons why one the you know if your job is um managing a team of people
+writing software then the kind of things that you want to actually take may not be well represented in
+that data set and as a result like there's likely not represented in benchmarks right like your standard
+gsm k8 data set as an example like doesn't have details about how to be a good manager or doesn't have
+good details about how to write code or whatever um so there's just limitations there that are present

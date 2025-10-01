@@ -1,0 +1,130 @@
+{
+  "text_summary": "The speaker outlines a chapter/section about the role of data in LLM-based applications, emphasizing that while data drove model training and capability advances (e.g., MNIST, ImageNet/AlexNet), practitioners building applications need different evaluation thinking. Benchmarks enabled research progress but do not directly answer whether a model will solve a particular application task. Practitioners should build feedback loops, observability, and cost/performance tracking for their apps. Historical examples (MNIST, Hinton 2006, ImageNet/AlexNet) and a commentary that new datasets often drive progress are proposed as motivating material. The speaker plans to contrast benchmark-driven progress with the limitations of benchmarks for real-world application requirements (e.g., managerial advice, coding tasks not well represented in standard datasets like GSM8K).",
+  "notes": [
+    "Data is central to building LLM-based applications, but the average practitioner is not training base models; they are building on top of them.",
+    "Practitioners need feedback loops and observability to understand model cost, performance gaps, and where to focus improvements.",
+    "Historical evaluation datasets played a pivotal role in advancing capabilities and framing what models could do.",
+    "MNIST (handwritten digits) served as an early benchmark that drove decades of research and was highlighted in Hinton's 2006 Science paper.",
+    "ImageNet and the AlexNet result demonstrated how a large dataset plus GPU training unlocked convolutional networks at scale.",
+    "A useful motivating quote/article idea: many breakthroughs come from new datasets more than new algorithms.",
+    "Text benchmarks for language models exist and drove progress, but the speaker wants to include at least one text benchmark example relevant to LMs.",
+    "Benchmarks often fail to represent real application needs; success on a benchmark does not guarantee ability to perform specific job tasks.",
+    "Examples of misalignment: managerial guidance, domain-specific code writing, or other niche tasks that are underrepresented in standard benchmarks like GSM8K.",
+    "The section should motivate why evaluating at the application level (custom tests, continuous evaluation) is necessary and give practitioners practical evaluation guidance."
+  ],
+  "articles_to_find": [
+    {
+      "name": "Hinton and Salakhutdinov 2006 (Science)",
+      "details": "Hinton & Salakhutdinov 2006 Science paper on deep autoencoders/representation learning that used MNIST and a text corpus as demonstrations; cite for historical role of MNIST and early deep learning revival.",
+      "status": "known"
+    },
+    {
+      "name": "MNIST dataset",
+      "details": "Original MNIST handwritten digit dataset and short history of its role as an early benchmark in pattern recognition.",
+      "status": "known"
+    },
+    {
+      "name": "Krizhevsky, Sutskever, Hinton 2012 (AlexNet)",
+      "details": "AlexNet paper describing ImageNet-driven breakthrough using convolutional networks and GPUs; cite for dataset-driven progress in vision.",
+      "status": "known"
+    },
+    {
+      "name": "ImageNet dataset",
+      "details": "ImageNet and the ILSVRC competition background, dataset scale and impact on computer vision progress.",
+      "status": "known"
+    },
+    {
+      "name": "Article/blog: 'There are no new ideas, just new datasets' (attributed to Jack Morris in transcript)",
+      "details": "Locate the exact article/post and author; use as a quote or supporting argument that dataset creation often enables breakthroughs more than novel algorithms.",
+      "status": "unknown"
+    },
+    {
+      "name": "GLUE / SuperGLUE benchmarks",
+      "details": "Papers introducing GLUE and SuperGLUE benchmarks for general language understanding; use as canonical text-benchmark examples that drove NLP/LM progress.",
+      "status": "known"
+    },
+    {
+      "name": "GSM8K dataset",
+      "details": "GSM8K math word-problem dataset mentioned in transcript as an example of a benchmark that may not cover managerial or domain-specific tasks; include description and typical uses.",
+      "status": "known"
+    },
+    {
+      "name": "CheckList (Ribeiro et al. 2020)",
+      "details": "Behavioral testing methodology for NLP models (CheckList); useful to cite when arguing for application-level, behavior-driven evaluation.",
+      "status": "known"
+    },
+    {
+      "name": "Model Cards for Model Reporting (Mitchell et al. 2019)",
+      "details": "Framework for documenting model behavior and evaluation; relevant for practitioner-facing evaluation/observability guidance.",
+      "status": "known"
+    },
+    {
+      "name": "Datasheets for Datasets (Gebru et al. 2018)",
+      "details": "Proposal for dataset documentation; useful for arguing about dataset provenance and limitations when building applications.",
+      "status": "known"
+    },
+    {
+      "name": "On the Dangers of Stochastic Parrots (Bender et al. 2021)",
+      "details": "Paper discussing scale, data, and ethical concerns in large language models; cite when discussing dataset limitations and risks.",
+      "status": "known"
+    }
+  ],
+  "topics_to_review": [
+    {
+      "topic": "Historical evaluation datasets and their impact",
+      "details": [
+        "Summarize MNIST history and how Hinton 2006 used it to motivate deep learning advances.",
+        "Summarize ImageNet/ILSVRC and AlexNet's role in scaling CNNs with GPUs.",
+        "List other high-impact datasets (e.g., COCO, SQuAD) to show cross-domain parallels."
+      ]
+    },
+    {
+      "topic": "Representative text benchmarks for LMs",
+      "details": [
+        "Describe GLUE and SuperGLUE: tasks included, why they mattered.",
+        "Include specialized benchmarks like GSM8K and what they measure (math reasoning).",
+        "Mention limitations of these benchmarks for real-world app tasks."
+      ]
+    },
+    {
+      "topic": "Critiques and limits of benchmarks",
+      "details": [
+        "Explain why benchmark performance does not one-to-one translate to application success.",
+        "Provide examples of gaps: management advice, niche domain coding, process/step-based tasks.",
+        "Cite works that discuss benchmark overfitting, benchmark gaming, and dataset/documentation shortcomings."
+      ]
+    },
+    {
+      "topic": "Practitioner-focused evaluation strategy",
+      "details": [
+        "Define feedback loops: telemetry, user feedback, error labeling, and iteration cadence.",
+        "Metrics to track: task success rate, cost per query, latency, hallucination rate, safety/toxicity measures.",
+        "Designing small, domain-specific evaluation sets and automated continuous evaluation."
+      ]
+    },
+    {
+      "topic": "Dataset creation and documentation for applications",
+      "details": [
+        "Guidelines for collecting representative application data and labeling.",
+        "Use of datasheets and model cards to record dataset/model limitations.",
+        "Strategies for synthetic data augmentation or targeted prompts to cover edge cases."
+      ]
+    },
+    {
+      "topic": "Practical examples & case studies",
+      "details": [
+        "Draft a short case study showing how MNIST/ImageNet accelerated research as a narrative device.",
+        "Prepare an application-level case study showing benchmark success vs production failure and how a feedback loop fixed it.",
+        "Collect examples of companies/projects that built evaluation pipelines for LLM apps."
+      ]
+    },
+    {
+      "topic": "Supporting references and exact citations to collect",
+      "details": [
+        "Exact citation details for Hinton 2006 Science, AlexNet 2012, GLUE/SuperGLUE, GSM8K, CheckList, Model Cards, Datasheets, and Stochastic Parrots.",
+        "Locate the 'no new ideas just new datasets' article/blog and verify author and URL.",
+        "Find articles/resources on observability/tooling for LLM applications (e.g., continuous evaluation frameworks, monitoring dashboards)."
+      ]
+    }
+  ]
+}
