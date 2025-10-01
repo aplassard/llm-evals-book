@@ -226,6 +226,9 @@ def main(argv: List[str] | None = None) -> int:
     if not openrouter_token:
         raise EnvironmentError("OPENROUTER_API_KEY must be set for the language model.")
 
+    if openrouter_token and not os.getenv("OPENAI_API_KEY"):
+        os.environ["OPENAI_API_KEY"] = openrouter_token
+
     note_data = json.loads(args.json_path.read_text())
     repo_root = resolve_repo_root()
     try:
