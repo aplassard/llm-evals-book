@@ -8,6 +8,7 @@ Usage: $(basename "$0") [--log-file PATH] [--verbose] [AUDIO_FILE]
 Options:
   --log-file PATH   Append detailed progress logs to PATH.
   --verbose         Mirror log output to stderr.
+  --test            Use faster, low-accuracy models (helpful for dry runs).
   -h, --help        Show this help message.
 
 If AUDIO_FILE is not provided, the newest file in the default audio directory is used.
@@ -17,6 +18,7 @@ USAGE
 # Logging helpers
 LOG_FILE=""
 VERBOSE=0
+TEST_MODE=0
 log_info() {
   local msg="$1"
   local timestamp
@@ -63,6 +65,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --verbose)
       VERBOSE=1
+      shift
+      ;;
+    --test)
+      TEST_MODE=1
       shift
       ;;
     -h|--help)
@@ -204,10 +210,20 @@ trap 'cleanup "$?"' EXIT
 
 log_info "Temporary transcription directory: $work_dir"
 
-if ! whisper "$audio_file" \
-  --output_dir "$work_dir" \
-  --output_format txt \
-  --verbose False >/dev/null 2>&1; then
+whisper_cmd=(
+  whisper
+  "$audio_file"
+  --output_dir "$work_dir"
+  --output_format txt
+  --verbose False
+)
+
+if [[ $TEST_MODE -eq 1 ]]; then
+  log_info "Test mode enabled: using Whisper tiny/int8 configuration for faster runs."
+  whisper_cmd+=(--model tiny --device cpu --compute_type int8)
+fi
+
+if ! "${whisper_cmd[@]}" >/dev/null 2>&1; then
   echo "Error: whisper transcription failed." >&2
   log_info "Whisper transcription failed."
   exit 1
