@@ -44,7 +44,7 @@ Place an `.env` file at the repository root (`../.env` relative to this director
 OPENROUTER_API_KEY=sk-or-...
 ```
 
-The script sources this file and fails fast if the key is missing. Never commit the `.env` file.
+The transcription script sources this file and fails fast if the key is missing. Never commit the `.env` file.
 
 ## Default Paths and Overrides
 
@@ -74,17 +74,17 @@ If `AUDIO_FILE` is omitted, the newest file in the audio directory is used. The 
 
 ### Research agent CLI
 
-Install the dependencies with `uv` (see "Python tooling" above), then run:
+Install the dependencies with `uv` (see "Python tooling" above). When invoking the CLI, prefer `uv run --env-file .env` so the necessary keys are injected without modifying your shell session:
 
 ```
-python writing-assistant/article_agent_cli.py \
+uv run --env-file .env writing-assistant/article_agent_cli.py \
   --name "Hinton and Salakhutdinov 2006 (Science)" \
   --details "Science paper on deep autoencoders demonstrating MNIST" \
   --status known \
   --summary "Chapter explores role of historical datasets in LLM evaluation."
 ```
 
-Provide `--status` as `known` when the citation is already identified, or `unknown` when discovery work is required. `--summary` is optional but gives the agent additional context. Append `--verbose` to stream progress logs. The CLI reads `OPENROUTER_API_KEY` and `TAVILY_API_KEY` from `.env`, queries OpenRouter's `x-ai/grok-4-fast` model via LangGraph, and prints Zotero-ready JSON.
+Provide `--status` as `known` when the citation is already identified, or `unknown` when discovery work is required. `--summary` is optional but gives the agent additional context. Append `--verbose` to stream progress logs. The CLI expects `OPENROUTER_API_KEY` and `TAVILY_API_KEY` to be present in the environment (for example via `uv run --env-file`). It queries OpenRouter's `x-ai/grok-4-fast` model via LangGraph and prints Zotero-ready JSON.
 
 ## Git Workflow Details
 

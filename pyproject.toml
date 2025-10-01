@@ -8,4 +8,5 @@ dependencies = [
     "langchain-openai>=0.3.33",
     "langchain-tavily>=0.2.11",
     "langgraph>=0.6.8",
+    "pytest>=8.4.2",
 ]
