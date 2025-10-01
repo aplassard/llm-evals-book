@@ -6,6 +6,7 @@ import argparse
 import json
 import logging
 import os
+import subprocess
 from typing import Optional
 
 from writing_assistant.research_issue_agent import run_research_workflow
@@ -15,7 +16,10 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Research GitHub issue article checklists and post results.",
     )
-    parser.add_argument("--repo", required=True, help="Repository in owner/name format.")
+    parser.add_argument(
+        "--repo",
+        help="Repository in owner/name format (default: derived from git origin).",
+    )
     parser.add_argument("--issue", required=True, type=int, help="Issue number to process.")
     parser.add_argument(
         "--selection-model",
@@ -41,6 +45,35 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def derive_repo_slug(explicit: Optional[str]) -> str:
+    if explicit:
+        return explicit
+
+    try:
+        origin = (
+            subprocess.check_output(
+                ["git", "remote", "get-url", "origin"],
+                text=True,
+            )
+            .strip()
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        raise EnvironmentError(
+            "Unable to determine repository slug; pass --repo explicitly."
+        )
+
+    origin = origin.rstrip(".git")
+    if origin.startswith("git@github.com:"):
+        slug = origin[len("git@github.com:") :]
+    elif origin.startswith("https://github.com/"):
+        slug = origin[len("https://github.com/") :]
+    else:
+        raise EnvironmentError(
+            f"Could not derive owner/repo from origin URL '{origin}'. Pass --repo."
+        )
+    return slug
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     args = parse_args(argv)
 
@@ -59,8 +92,10 @@ def main(argv: Optional[list[str]] = None) -> int:
     if openrouter_key and not os.getenv("OPENAI_API_KEY"):
         os.environ["OPENAI_API_KEY"] = openrouter_key
 
+    repo_slug = derive_repo_slug(args.repo)
+
     state = run_research_workflow(
-        repo=args.repo,
+        repo=repo_slug,
         issue_number=args.issue,
         github_token=github_token,
         selection_model=args.selection_model,
@@ -69,6 +104,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     )
 
     output = {
+        "repo": repo_slug,
         "selected_indices": state.selected_indices,
         "results": [
             {

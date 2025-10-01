@@ -121,7 +121,7 @@ uv run --env-file .env python writing-assistant/research_issue_agent_cli.py \
   --issue 123
 ```
 
-The agent reviews the "Articles to Find" checklist, chooses outstanding entries to research, invokes the article research workflow for each, comments on the issue with the results, and checks off the corresponding boxes. "Topics to Review" remain untouched for now.
+The agent reviews the "Articles to Find" checklist, chooses outstanding entries to research, invokes the article research workflow for each, comments on the issue with the results, and checks off the corresponding boxes. "Topics to Review" remain untouched for now. If `--repo` is omitted, the CLI derives the owner/repo from the local git `origin` remote.
 
 ## Git Workflow Details
 

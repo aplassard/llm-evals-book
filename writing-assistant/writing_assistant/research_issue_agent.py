@@ -300,7 +300,12 @@ def build_research_graph(
     graph = StateGraph(ResearchState)
 
     def fetch_issue_node(state: ResearchState) -> ResearchState:
-        issue = client.get_issue(state.issue_number)
+        try:
+            issue = client.get_issue(state.issue_number)
+        except requests.HTTPError as exc:  # type: ignore[attr-defined]
+            raise RuntimeError(
+                f"Failed to fetch issue #{state.issue_number} from {state.repo}: {exc}"
+            ) from exc
         body = issue.get("body", "")
         state.issue_body = body
         state.issue_title = issue.get("title") or ""
@@ -400,4 +405,6 @@ def run_research_workflow(
     app = graph.compile()
     initial_state = ResearchState(repo=repo, issue_number=issue_number)
     result_state = app.invoke(initial_state)
+    if isinstance(result_state, dict):
+        result_state = ResearchState(**result_state)
     return result_state
