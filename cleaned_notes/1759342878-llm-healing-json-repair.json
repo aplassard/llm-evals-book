@@ -1,0 +1,122 @@
+{
+  "text_summary": "Speaker proposes the concept of \"LLM healing\": using an LLM (or a second LLM acting as a healer) to correct formatting and structural errors produced by the primary LLM output instead of building exhaustive structured logic. Workflow: primary LLM generates a response, attempt to parse (e.g., as JSON); if parsing fails, send the broken output plus the expected format to a healer LLM to produce corrected output; return the corrected code/format. This approach reduces the need to handle every corner case with rigid logic. The speaker suggests adding a brief example in a chapter to illustrate the method.",
+  "notes": [
+    "LLM healing is the idea of using an LLM to automatically correct its own output errors rather than relying on exhaustive hard-coded logic.",
+    "Typical workflow: primary LLM generates an output; attempt to parse/validate (for example, parse JSON); if validation fails, pass both the expected format and the flawed output to a healer LLM to fix formatting errors.",
+    "The healer LLM should return only the corrected code or properly formatted result at the end.",
+    "This method focuses on correcting structural/formatting issues rather than re-engineering logic to cover every case.",
+    "LLM outputs can be silly, wrong, or malformed; the healing approach accepts that and uses the model to repair errors.",
+    "The approach can be framed as a lightweight wrapper that validates outputs and triggers a fix-only prompt when needed.",
+    "An example demonstrating parsing-fail -> healer-fix -> corrected JSON would be a useful aside in a chapter.",
+    "Consider trade-offs: latency, token costs, possible repeated failures, and the need to design robust healer prompts.",
+    "Validation step should capture parse errors and provide clear instructions and the expected schema to the healer.",
+    "The healer should be constrained to only fix formatting/structural problems and avoid adding new content or changing semantics."
+  ],
+  "articles_to_find": [
+    {
+      "name": "Papers on LLM self-correction or iterative refinement",
+      "details": "Look for academic and industry papers describing iterative self-correction, self-refinement, or multi-stage LLM workflows where a model revises previous output. Examples might include 'self-refine', 'iterative prompting', or 'looped refinement' approaches. Capture methods, evaluation metrics, and experiments.",
+      "status": "unknown"
+    },
+    {
+      "name": "LLM verification and calibration literature",
+      "details": "Search for work on using LLMs as verifiers, validators, or verifiers+generators (e.g., using a verifier to check outputs and rescore or correct them). Include any frameworks that formalize 'verifier' roles and compare single-pass vs multi-pass strategies.",
+      "status": "unknown"
+    },
+    {
+      "name": "Practical guides on JSON/schema validation with LLMs",
+      "details": "Find blog posts, docs, or examples showing patterns for asking LLMs to output predictable JSON and workflows for validating and repairing malformed JSON, including prompt templates and failure handling strategies.",
+      "status": "unknown"
+    },
+    {
+      "name": "Prompt engineering patterns for fix-only prompts",
+      "details": "Collect examples of prompts that instruct models to only correct formatting errors, to 'fix the JSON only' or 'return corrected schema-compliant output' without additional commentary. Include successful templates and anti-patterns.",
+      "status": "unknown"
+    },
+    {
+      "name": "Tooling and code examples / GitHub repos implementing healer wrappers",
+      "details": "Search for open-source implementations or utilities that implement an LLM healer or validator-wrapper around model calls (libraries, middleware, or example repos showing parse-validate-repair loops).",
+      "status": "unknown"
+    },
+    {
+      "name": "Related NLP techniques: self-consistency, chain-of-thought verification, ReAct",
+      "details": "Find references to methods like self-consistency, ReAct (reason+act), or chain-of-thought verification that may overlap conceptually with healing, and summarize relevant lessons for structured-output correction.",
+      "status": "unknown"
+    },
+    {
+      "name": "Benchmarks and metrics for output-correction strategies",
+      "details": "Look for benchmarks measuring success rate of format-compliant outputs, repair success after healing, latency and cost trade-offs, and any human-evaluation studies related to correction accuracy.",
+      "status": "unknown"
+    }
+  ],
+  "topics_to_review": [
+    {
+      "topic": "Implementation workflow and patterns",
+      "details": [
+        "Define concrete step-by-step flow: generate -> validate -> if fail, call healer -> re-validate -> return.",
+        "Decide on one or two LLM roles: same model for both steps vs separate healer model (smaller/cheaper or different temperature).",
+        "How to represent expected format: JSON schema, example templates, explicit instructions, or checksums.",
+        "When to retry vs escalate: single-heal attempt, multiple attempts, or fallback to a human or deterministic parser."
+      ]
+    },
+    {
+      "topic": "Prompt design for the healer",
+      "details": [
+        "Craft concise fix-only prompts that include the broken output, the expected schema, and examples of correct output.",
+        "Explicitly instruct healer to output only the corrected structure with no extraneous text or commentary.",
+        "Include prompts for common error classes (missing fields, wrong types, trailing commas, truncated output).",
+        "Test temperature and decoding settings to minimize hallucinations while repairing."
+      ]
+    },
+    {
+      "topic": "Validation and parsing strategies",
+      "details": [
+        "Use strict validators (JSON.parse, schema validators) to detect failures and capture precise error messages for the healer.",
+        "Consider tolerant parsers that provide partial structure and highlight missing tokens.",
+        "Decide on validation feedback to pass back (raw error message, expected schema snippet, or example)."
+      ]
+    },
+    {
+      "topic": "Failure modes and limitations",
+      "details": [
+        "Potential for the healer to change semantics while fixing structure; need constraints and tests.",
+        "Risk of repeated malformed outputs increasing cost and latency.",
+        "Cases where structural repair can't fix hallucinated content or factual errors.",
+        "Edge cases: streaming outputs, truncated responses, very large schemas."
+      ]
+    },
+    {
+      "topic": "Evaluation and metrics",
+      "details": [
+        "Define success metrics: percent of outputs valid without healing, percent fixed by healer, time and token cost per fixed response.",
+        "User-facing metrics: downstream task success, error rates, and human review frequency.",
+        "A/B test strategies: single-pass vs healed+single-pass with varying healer prompts."
+      ]
+    },
+    {
+      "topic": "Example ideas for the chapter aside",
+      "details": [
+        "Simple JSON generation example: request a user profile JSON, show a malformed output, then show healer prompt and corrected JSON.",
+        "Short code snippet (pseudocode) showing the generate-validate-heal loop.",
+        "A small experiment result: success rate improvement after adding a single healer pass (even if hypothetical).",
+        "Discussion box on trade-offs (latency, cost, safety) and when to use healer pattern."
+      ]
+    },
+    {
+      "topic": "Tooling and integration",
+      "details": [
+        "Where to place healing logic: client-side wrapper, API gateway, or server-side microservice.",
+        "Logging and observability: track original vs healed outputs to refine prompts and detect recurring issues.",
+        "Potential to cache healed outputs for repeated queries to save cost."
+      ]
+    },
+    {
+      "topic": "Safety and constraints",
+      "details": [
+        "Constraints to ensure the healer does not introduce new claims or hallucinations when fixing structure.",
+        "Ways to enforce 'no added content' such as diff checks or schema-only acceptance.",
+        "Human-in-the-loop thresholds for critical outputs."
+      ]
+    }
+  ]
+}
