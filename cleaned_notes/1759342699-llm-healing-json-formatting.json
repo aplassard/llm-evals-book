@@ -1,0 +1,113 @@
+{
+  "text_summary": "The speaker proposes a pattern called \"LLM healing\": instead of building exhaustive structured logic to guarantee output formats, let the LLM produce a response and then detect/validate the format (e.g., JSON). If validation fails, send the original output plus the expected schema/format back to a separate LLM \"healer\" prompt that corrects formatting/errors and returns the properly structured result. The speaker suggests this as a short aside in a chapter and wants to add an example to demonstrate the pattern.",
+  "notes": [
+    "LLM healing is a post-processing pattern where an LLM is used to fix its own formatting and structure errors rather than relying on exhaustive validation code.",
+    "Typical workflow: primary LLM generates output -> attempt to parse/validate (e.g., JSON) -> if parsing fails, send both the expected schema and the raw output back to a healing prompt -> healer LLM returns corrected structured output.",
+    "The approach reduces the need to anticipate every possible error case in program logic by delegating correction to the LLM.",
+    "The healer should receive the expected format/schema and the faulty output; it should return only the corrected code/data in the required format.",
+    "This pattern is especially useful when expecting strict formats (JSON, code snippets, CSV) and when building exhaustive parsers is costly.",
+    "Need an example (real or synthetic) to include as a brief aside in a chapter to illustrate the pattern working (or failing).",
+    "Consider edge cases: hallucinations, partial correctness, data loss, infinite cycles of re-healing, and malicious or adversarial outputs.",
+    "Decide whether to use one LLM with an internal 'healer' prompt, two separate models, or an orchestrator that calls the same model twice.",
+    "Consider automatic detection: what constitutes a parse failure vs. a nuanced semantic error that needs different handling?",
+    "Implementation details to clarify: prompt templates for healer, schema representation (jsonschema, protobuf, type hints), maximum repair attempts, and logging/auditing of healed changes."
+  ],
+  "articles_to_find": [
+    {
+      "name": "LLM healing / self-repair overview",
+      "details": "Survey or blog posts describing the pattern of using an LLM to correct or reformat its own outputs; search terms: \"LLM self-repair\", \"LLM healing\", \"self-correcting language models\", \"output repair\".",
+      "status": "unknown"
+    },
+    {
+      "name": "Parsing and validation strategies for LLM outputs",
+      "details": "References on validating LLM outputs against schemas (JSON, XML, protobuf) and techniques for automated repair; look for examples using jsonschema, type validators, and structured output parsers.",
+      "status": "unknown"
+    },
+    {
+      "name": "Prompt engineering patterns for post-hoc correction",
+      "details": "Examples of healer prompt templates and best practices for instructing an LLM to return only corrected structured data; include guardrails to avoid added commentary.",
+      "status": "unknown"
+    },
+    {
+      "name": "Tooling and libraries that support structured outputs",
+      "details": "Articles or documentation for tools like LangChain OutputParser, OpenAI function-calling/specs, Pydantic, or other libs used to manage/validate LLM outputs and integrate healing workflows.",
+      "status": "unknown"
+    },
+    {
+      "name": "Papers on self-debugging and self-verification in LLMs",
+      "details": "Academic work or technical articles on models checking or debugging their own outputs (search terms: \"self-verification\", \"self-debugging LLM\", \"self-consistency\"), and evaluation of reliability.",
+      "status": "unknown"
+    },
+    {
+      "name": "Case studies or examples of repair workflows",
+      "details": "Concrete examples showing the parse->heal->return cycle in production or demos, ideally with code snippets and failure-mode discussion.",
+      "status": "unknown"
+    }
+  ],
+  "topics_to_review": [
+    {
+      "topic": "Definition and scope of LLM healing",
+      "details": [
+        "Concise definition to use in the chapter aside",
+        "Where this pattern is appropriate vs. where it is not",
+        "Terminology (healer, primary model, parse/validate step)"
+      ]
+    },
+    {
+      "topic": "Workflows and orchestration",
+      "details": [
+        "Single-model vs. multi-model healer architectures",
+        "Orchestrator logic: number of retries, timeout, and fallback strategies",
+        "How to present the workflow diagrammatically in the chapter"
+      ]
+    },
+    {
+      "topic": "Prompt templates and constraints",
+      "details": [
+        "Example healer prompt(s) that request only corrected JSON/code and nothing else",
+        "Instructions for including the expected schema in the prompt",
+        "Methods to reduce hallucination and extraneous commentary"
+      ]
+    },
+    {
+      "topic": "Validation and schema representation",
+      "details": [
+        "Best practices for specifying expected output (jsonschema, protobuf, examples, type declarations)",
+        "How to run an initial parse/validation step and identify parse failures",
+        "Mapping validation errors into healer instructions"
+      ]
+    },
+    {
+      "topic": "Implementation examples and code snippets",
+      "details": [
+        "Minimal reproducible example: LLM generates JSON -> parser fails -> healer corrects and returns valid JSON",
+        "Variants for code generation, CSV/table output, and structured text",
+        "Integration examples using common SDKs (OpenAI, LangChain, etc.)"
+      ]
+    },
+    {
+      "topic": "Edge cases and safety considerations",
+      "details": [
+        "When healing can introduce data corruption or remove needed context",
+        "Risks of repeated healing loops and strategies to avoid them",
+        "Logging, auditing, and human-in-the-loop escalation criteria"
+      ]
+    },
+    {
+      "topic": "Evaluation and metrics",
+      "details": [
+        "How to measure healer performance (parse success rate, fidelity to original intent, data loss)",
+        "Benchmarks and test cases for stress-testing the pattern",
+        "User-visible impacts: latency, reliability, and trust"
+      ]
+    },
+    {
+      "topic": "Placement in book/chapter",
+      "details": [
+        "How to position the aside: concise concept + small example vs. full section",
+        "Suggested figure or code listing to illustrate the pattern",
+        "Length and tone recommendations for a brief aside"
+      ]
+    }
+  ]
+}
