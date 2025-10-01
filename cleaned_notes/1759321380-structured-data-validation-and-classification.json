@@ -1,0 +1,125 @@
+{
+  "text_summary": "Chapter focused on two practical LLM application patterns: (1) validating and returning structured data (JSON) so model outputs conform to a programmatic schema, and (2) using LLMs for classification-style tasks (fixed label sets) and evaluating them with standard metrics. Cover prompt design, common output artifacts (preambles, code fences), code-based validation (e.g., pydantic), measurement of schema-conformance rate, and an example project (benchmarks on a small model and an email classification assistant). Include code examples in a repo and a possible cross-reference chapter on prompting strategies and failure-handling.",
+  "notes": [
+    "Chapter two will cover two linked topics: validating structured data outputs and handling classification tasks with LLMs.",
+    "When building LLM applications, the model must often conform to a specific schema (commonly JSON) so downstream systems can consume outputs programmatically.",
+    "Common issues with LLM-generated structured outputs include preamble text, code fences (```), extra commentary, and slight deviations from the requested schema.",
+    "Prompt should specify the exact JSON format including field names, types, optional fields, and list structures so the model knows the expected schema.",
+    "Validate model outputs programmatically (e.g., with pydantic or custom validation code) and report the fraction of outputs that match the schema exactly.",
+    "Classification tasks fit naturally into this pattern: include an ID, the classification decision (fixed labels), and optional notes; then validate and evaluate.",
+    "Use standard classification metrics (accuracy, precision, recall, F1) to quantify performance on classification tasks produced by the model.",
+    "Consider a small benchmark with a lightweight model (referred to here as GPT-5 nano) on tasks like sentiment analysis or email classification to demonstrate methods.",
+    "Concrete example: an email classification assistant that accepts subject, body, timestamps, thread context, sender, etc., and returns labels such as priority, archive/keep, or requires-response.",
+    "Include code examples in the GitHub repo and the book for running validation, measuring schema-conformance rates, and computing classification metrics.",
+    "Defer a deeper treatment of prompting strategies and failure-handling (retries, repair) to a separate section or chapter but link to it from this chapter.",
+    "Design experiments to measure: schema-conformance percentage, classification metric trade-offs, and effect of prompt tweaks on both conformity and accuracy."
+  ],
+  "articles_to_find": [
+    {
+      "name": "JSON",
+      "details": "Best practices for JSON schema design for LLM outputs, examples of schemas used to structure model responses, and common pitfalls when parsing LLM-produced JSON.",
+      "status": "known"
+    },
+    {
+      "name": "pydantic",
+      "details": "Documentation and examples for using pydantic (or equivalent libraries) to validate JSON-like data structures and produce clear validation errors for LLM outputs.",
+      "status": "known"
+    },
+    {
+      "name": "GPT-5 nano",
+      "details": "Reference or placeholder for a small, low-cost LLM suitable for quick benchmarks; verify availability or identify realistic small-model substitutes and their specs/performance.",
+      "status": "known"
+    },
+    {
+      "name": "prompting strategies",
+      "details": "Survey of prompting techniques aimed at improving structured output conformity and classification accuracy (explicit format instructions, few-shot examples, system messages, temperature control, etc.).",
+      "status": "known"
+    },
+    {
+      "name": "classification metrics (accuracy, precision, recall, F1)",
+      "details": "Clear explanations and formulas for these metrics and guidance on interpreting them in the context of LLM-based classifiers; examples of multi-class and imbalanced cases.",
+      "status": "known"
+    },
+    {
+      "name": "LLM output validation and schema conformance",
+      "details": "Research and practical guides on methods to validate and correct LLM outputs against schemas, including parser strategies, robust JSON extraction, and automated repair workflows.",
+      "status": "unknown"
+    },
+    {
+      "name": "benchmarks for LLM sentiment analysis and structured-output tasks",
+      "details": "Datasets and benchmark papers showing how small and large LLMs perform on sentiment classification and structured output tasks; baseline numbers for comparison.",
+      "status": "unknown"
+    },
+    {
+      "name": "handling LLM failures and repair strategies",
+      "details": "Best practices for detecting outputs that don't match schema, retry/reprompt patterns, programmatic repair (e.g., regex, tree-sitter, model-assisted correction), and when to fall back to heuristics.",
+      "status": "unknown"
+    },
+    {
+      "name": "common LLM formatting artifacts and mitigation",
+      "details": "Documentation or posts describing frequent LLM output artifacts (code fences, extra prose), why they occur, and prompt or post-processing methods to remove them reliably.",
+      "status": "unknown"
+    },
+    {
+      "name": "email classification datasets and example implementations",
+      "details": "Datasets and prior work for email triage/classification; example schemas for email classification tasks and sample prompts used in published projects or repos.",
+      "status": "unknown"
+    }
+  ],
+  "topics_to_review": [
+    {
+      "topic": "Structured-output validation",
+      "details": [
+        "How to author clear schema specifications for prompts (field names, types, optional fields, lists).",
+        "Library options for validation (pydantic, marshmallow, jsonschema) and example code snippets.",
+        "Techniques to compute and report schema-conformance percentage across a dataset.",
+        "Strategies to parse imperfect JSON (partial JSON extraction, tolerant parsers) and to surface precise validation errors."
+      ]
+    },
+    {
+      "topic": "Classification tasks with LLMs",
+      "details": [
+        "Label-set design (binary vs multi-class vs hierarchical labels) and when to include a 'none-of-the-above' or 'unknown' label.",
+        "Prompt patterns for reliable classification outputs and whether to include free-text justification fields.",
+        "Evaluation plan: train/validation/test splits where applicable, sample sizes, and metrics to compute.",
+        "Handling class imbalance and multi-label cases in evaluation and prompting."
+      ]
+    },
+    {
+      "topic": "Prompting strategies to improve structured outputs",
+      "details": [
+        "Explicit format enforcement techniques (system message, JSON-only instruction, few-shot JSON examples).",
+        "Temperature and sampling control implications for deterministic structured output.",
+        "Using examples to show exact desired formatting and type constraints.",
+        "Trade-offs between model-side justification fields and stricter JSON-only outputs."
+      ]
+    },
+    {
+      "topic": "Failure detection and repair",
+      "details": [
+        "Detecting nonconforming outputs (schema validation errors, missing keys, wrong types).",
+        "Automated repair approaches: model-assisted correction, prompt-based re-generation, and programmatic fixes.",
+        "Retry and fallback logic: how many attempts, when to escalate to human review, and logging for analytics.",
+        "Metrics to track repair success rate and downstream impact of repaired outputs."
+      ]
+    },
+    {
+      "topic": "Example projects and experiment design",
+      "details": [
+        "Small-model benchmark: select a lightweight model, dataset, and measurement plan for schema conformity and classification accuracy.",
+        "Email classification assistant: define schema, label set (priority, requires-response, archive), and example prompts plus sample inputs.",
+        "Repository structure and example notebooks/scripts to reproduce validation and evaluation experiments.",
+        "Documentation snippets to include in the book showing expected inputs/outputs and edge-case examples."
+      ]
+    },
+    {
+      "topic": "Integration and production considerations",
+      "details": [
+        "How to expose validated outputs to downstream systems (APIs, event messages, database schema).",
+        "Observability: logging schema-conformance rates, classification metrics over time, and alerting on regressions.",
+        "Security and privacy considerations when validating user content (avoid logging sensitive fields).",
+        "Designing for incremental rollout: start with advisory mode before enforcing automated actions based on LLM labels."
+      ]
+    }
+  ]
+}

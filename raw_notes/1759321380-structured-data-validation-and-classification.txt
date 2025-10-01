@@ -1,0 +1,76 @@
+Okay, so I want to discuss some of the content for the chapter two, technically, or whatever the first chapter is on like, more like structured data tasks. And there's two topics that I want to discuss in this chapter.
+The first topic is how to validate and return structured data. And the second topic is how to like, handle classification style tasks with LLMs. And so like both of these, right, become a powerful pair of things we can work on.
+I think whenever you're building LLM based applications, obviously, you need the model to conform to a particular schema in order for it to be a useful tool in a system, most likely, right?
+Like, I think the common example here is using JSON, J-S-O-N, to like return data in a particular format, so that then it can be consumed in another framework.
+So like, the example here would be, like, you know, if you have unstructured notes from a meeting, maybe you want those to be returned in a particular JSON format, so that it can be consumed in an application.
+And I think, like, I think, like, the use case here is by giving it the right structure, it can then be more generally applicable to your, to like a programmatic application.
+So this shouldn't be a fairly, like, hard concept to understand.
+I don't think it should be fairly straightforward.
+So the challenge comes in, in that inherently, these large language models don't necessarily always abide by the schema, it's asked of them.
+Like, sometimes they'll add in, like, some preamble text.
+Sometimes they'll, you know, put the format in, like, backticks.
+So, like, a common one I've seen is, like, do a Python code for something.
+It'll give you, like, backtick, backtick, backtick, Python, and then a code, and then three more backticks at the end.
+And, like, the reason it does that is that it's, like, a pretty common pattern for writing code online.
+Or it'll say something like, you know, here's your code that I wrote for you, and then it'll give you the code after it, after it has, like, that preamble text or whatever.
+And so, you know, what we need to be able to do is validate that the returned fonts matches the format that is expected.
+And if this is, like, structured fields, that's relatively straightforward, right?
+We can take an input in, pick an output out, and then, you know, go through and, like, validate that all the fields are correct.
+So this is a pretty easy example to show.
+But, like, essentially, you know, in your prompt, you'll specify the JSON format that you want.
+You know, maybe that's a field of, like, description that's a string, and then a list of things in the image or whatever that you're classifying or something like that.
+And then you can then go through and, in code, or even in just, like, a data-aware class, like a pydantic or something like that, validate that the data object meets the criteria.
+And you can do, like, optional fields, the total list of fields available, all the fields, et cetera.
+So, like, it's a relatively, like, just useful thing to do.
+Does your model conform to the format that you're expecting?
+Like, does the model actually validate in the way that you want it to?
+So, okay, so that is, like, step one of this section.
+Step two of this section is then working on, like, a classification-style task or some, like, clear decision where there's relatively fixed values.
+And the common example here from, like, historical benchmarks and whatever is classifying sentiment analysis.
+Is this positive?
+Is this negative?
+Et cetera.
+Oh, sorry.
+One thing in the first part that I forgot.
+Like, the goal of it then is to say, like, what is the percent of the time that your application matches the schema expected, right?
+So, like, the output of that step should be, like, an example of, you know, code matches schema 99% of the time or whatever.
+And, yeah, then we can get into handling failures in a minute.
+But, or maybe in the next recording we'll handle failures.
+So, what we can then do is, in the classification-style task, we can use that format that we've already defined to say, you know, here's our input, here's our classification decision.
+So, like, a movie review, is it positive sentiment, negative sentiment, neutral sentiment, whatever.
+So, you get a binary decision and, or a ternary decision in that case, but whatever, you get the idea.
+And, you know, what we can then, like, do is first use our data structure validation to then assess if it worked correctly or not, maybe returned if you had that new words.
+So, in that simple example, it's probably something like an ID of the task at hand, and then a classification decision.
+I mean, optionally, like, sometimes, you know, including a notes section for the model, like, I'd be a bad idea because the model likes to blather about things.
+But, you know, that's, your mileage may vary on that.
+So, in this case, though, this becomes like a classification task, where we can then look at all the traditional classification-style metrics that exist.
+You know, your accuracies, your precision recalls, your F1 scores, your, you know, whatever the task at hand might be.
+And this is then, like, cases where we can briefly discuss performance in these systems, but I think, like, this is a time when it would be good to link out to, like, having a section somewhere on prompting strategies or whatever to improve performance on various metrics.
+Maybe there should be a whole chapter in and of itself, like a brief prompting strategies chapter where we cover some of these things.
+So, that's all, that's all good.
+But, look, we can get to that in a different part.
+And, and so, the, yeah, the goal of this then is, like, we can essentially, you know, a classification task with the model.
+And so, you know, then for this, this overall section, I think it'd be good to have an example where we're, like, doing data format or expecting a particular format.
+And we can validate if it works or not.
+Maybe we can run a really simple benchmark with, like, a small model, like GPT-5 nano or something like that on, like, an email or on, like, a sentiment analysis classification style task.
+And then we can then do it, like, a more in-depth example where we are building out, like, an email classification assistant.
+And, like, in that case, we have a prompt that is, like, your email classification task.
+Here is the subject.
+Here's the subject.
+Here's the body.
+Here's the when it was sent.
+Here's the, you know, other emails in the chain.
+Here's who it's from, et cetera.
+Make a decision of different ways you can use different things you can do with that.
+Is it high priority?
+Is it, should it be archived?
+Like, does it require a response?
+Some classification task like that that we can start to build out.
+And I think that's, like, a useful example we can start to build through.
+So, yeah, I think those two examples then become, like, useful frameworks for how to think about the problem.
+And we can include code both in the GitHub repo and, like, examples in the book for how to run those and the types of responses that you should get.
+So, for that we can do.
+Okay.
+Thank you.
+Alright.
+Okay.
