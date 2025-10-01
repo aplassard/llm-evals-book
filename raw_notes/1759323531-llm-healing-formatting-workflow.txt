@@ -1,0 +1,14 @@
+Okay, so I want to talk about LLM healing at this point, and I'm not sure how widespread of a concept this is, so you have to do a little bit of digging, both into the concept and into a more general idea.
+But the idea behind it is when LLMs are giving you a response, they're not forced into a structured format, and there's a lot of ways in which they can fail or do things that are silly or wrong or, you know, whatever.
+And the idea of LLM healing is instead of trying to, like, build out structured logic to handle every possible scenario that the LLM might do, we instead, like, use an LLM to correct errors.
+So the workflow that I've used in the past is the LLM creates a response, we attempt to parse it as JSON, matching our format, or whatever.
+If it fails, we then pass the expected format, pass the response that we actually did get, and then parse the error as well to the LLM healer to then have it correct the formatting error.
+And then return just the correct code, or correct format of the result at the end.
+And so that's the idea of LLM healing.
+And the idea is, like, when we're just doing, like, a formatting thing, you know, when we're expecting the response to be, like, in a particular JSON format or whatever,
+then the healing can then fix the underlying issue and correct it for us.
+So without having to, like, try to parse it in every possible imaginable way, because that's kind of just going to whack them all.
+So that is the idea of LLM healing.
+And it would be good to have this just as an aside in the chapter.
+I can try to come up with, like, an example of this actually working or not, but we will see if we can pull that off.
+But, yeah, just having, like, an example of this, a brief aside, would be a cool thing to include.
