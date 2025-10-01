@@ -12,7 +12,7 @@ from typing import Any, Dict, List
 import requests
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
@@ -274,6 +274,7 @@ def main(argv: List[str] | None = None) -> int:
 
     state: Dict[str, Any] = {
         "input": user_prompt,
+        "messages": [HumanMessage(content=user_prompt)],
         "max_iterations": args.max_iterations,
     }
 
