@@ -1,0 +1,100 @@
+{
+  "text_summary": "The speaker describes an \"LLM healing\" pattern: instead of building exhaustive structured parsing and error-handling logic, use a language model to correct its own formatting or parsing errors. The workflow is: LLM produces output, attempt to parse (for example as JSON); if parsing fails, send the raw output plus the expected format back to an LLM \"healer\" prompt that corrects the formatting and returns the valid structured result. This approach reduces the need to anticipate every failure case. The speaker suggests including a brief example in a chapter and wants to research and possibly demonstrate the technique.",
+  "notes": [
+    "LLM healing is a pattern where an LLM corrects its own formatting and parsing errors instead of relying on exhaustive external logic.",
+    "Typical workflow: LLM generates output; attempt to parse the output (e.g., JSON); if parsing fails, send both the expected schema and the model output to a corrective prompt or healer model to produce valid structured output.",
+    "The healer step returns only the corrected code or correctly formatted result, simplifying downstream consumption.",
+    "This avoids building complex, brittle logic that tries to handle every possible silly or wrong LLM response.",
+    "The approach assumes the LLM can reliably rewrite or reformat its previous output when guided with the expected schema and the original content.",
+    "Potential chapter inclusion: a short aside describing the concept and a concrete example showing the parse-fail -> healer -> corrected output flow.",
+    "Need to dig into the concept more generally: reliability bounds, when it works, failure modes, and any known implementations or best practices.",
+    "Consider an actual runnable example to demonstrate success and limitations (e.g., LLM produces malformed JSON, healer fixes it).",
+    "Be aware of risks: healer could still hallucinate or change semantic content while fixing format; need validation and tests.",
+    "Implementation considerations: whether to use the same model for generation and healing, prompt design for the healer, timeout and retry policies, and logging of original vs healed output."
+  ],
+  "articles_to_find": [
+    {
+      "name": "LLM output-fixing or self-correction patterns",
+      "details": "Survey articles or blog posts describing design patterns where an LLM is used to correct or reformat its own outputs (JSON correction, code-fixing, schema repair). Look for example prompts and architectures.",
+      "status": "unknown"
+    },
+    {
+      "name": "Best practices for enforcing JSON or schema output from LLMs",
+      "details": "Technical notes and guides on prompting and validation strategies to get reliable structured output from LLMs, including sample prompts, validators, and fallback heuristics.",
+      "status": "unknown"
+    },
+    {
+      "name": "Papers or posts on reliability and failure modes of LLMs (hallucination and correction)",
+      "details": "Academic and industry analyses of LLM hallucination, correction strategies, and empirical results on self-correction or post-processing approaches.",
+      "status": "unknown"
+    },
+    {
+      "name": "Multi-step / chain-of-thought / verified generation techniques",
+      "details": "Research or engineering writeups on multi-step generation, verification loops, and use of additional models or tools for validation and repair of outputs.",
+      "status": "unknown"
+    },
+    {
+      "name": "Implementations or libraries that perform LLM output validation and auto-correction",
+      "details": "Open-source projects, utilities, or SDK extensions that implement LLM output validation (e.g., JSON validators with auto-correction) or orchestration patterns for healer flows.",
+      "status": "unknown"
+    },
+    {
+      "name": "Prompt engineering examples for corrective prompts",
+      "details": "Collections of healer prompt templates that show how to instruct an LLM to fix formats, return only corrected data, and avoid altering semantic content.",
+      "status": "unknown"
+    }
+  ],
+  "topics_to_review": [
+    {
+      "topic": "Workflow design and orchestration",
+      "details": [
+        "Decide where healer runs: same model vs specialized model vs different prompt.",
+        "Synchronous vs asynchronous healer correction and retry policies.",
+        "Logging, observability, and audits of original vs healed outputs for debugging and compliance.",
+        "Performance and cost implications of an extra healing round-trip."
+      ]
+    },
+    {
+      "topic": "Prompt design for healer",
+      "details": [
+        "How to present the expected schema (full JSON schema, example, or terse instructions).",
+        "How to include the raw invalid output while instructing the model to change only formatting and not semantics.",
+        "Instructions to output only the corrected data with no commentary.",
+        "Temperature and other generation parameters to minimize hallucination during healing."
+      ]
+    },
+    {
+      "topic": "Validation and safety checks",
+      "details": [
+        "Automated validators to confirm healed output matches schema before accepting.",
+        "Checks to detect semantic drift where healer changes content rather than format.",
+        "Fallback strategies if healer cannot produce valid output (retry, stricter schema, human review).",
+        "Security considerations for LLM rewriting (injection attacks via the original output)."
+      ]
+    },
+    {
+      "topic": "Concrete examples and demos",
+      "details": [
+        "Simple demo: LLM produces malformed JSON, healer corrects to valid JSON.",
+        "More complex demo: LLM generates code snippet that doesn't compile, healer fixes syntax errors.",
+        "Metrics to capture: initial parse success rate, healer correction success rate, semantic fidelity after healing."
+      ]
+    },
+    {
+      "topic": "Limitations and failure modes",
+      "details": [
+        "When healer may fail (ambiguous original output, missing data, contradictory content).",
+        "Risks of repeated healing loops and possible oscillation or degradation.",
+        "Edge cases that require programmatic parsing rather than heuristic healing."
+      ]
+    },
+    {
+      "topic": "Related literature and tooling",
+      "details": [
+        "Search for existing pattern names (self-correction, output repair, post-processing) and canonical references.",
+        "Find libraries or SDKs providing schema-driven LLM response handling.",
+        "Compare to alternate approaches like strict constrained decoding or external parsers."
+      ]
+    }
+  ]
+}
