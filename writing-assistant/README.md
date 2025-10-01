@@ -19,6 +19,7 @@ This directory contains automation utilities that support the walking-notes work
    - `articles_to_find`: references to gather, each with a `name`, `details`, and `status` (`known` or `unknown`).
    - `topics_to_review`: follow-up themes, each with a `topic` and supporting detail strings.
 6. Commits both raw and cleaned files on a new worktree branch based on `main`, pushes it, and opens a pull request with GitHub CLI.
+7. Delegates to a LangChain-powered GitHub agent that files a follow-up issue summarising the note and comments on the new pull request with a link to that issue.
 
 ## Prerequisites
 
@@ -42,9 +43,10 @@ Place an `.env` file at the repository root (`../.env` relative to this director
 
 ```
 OPENROUTER_API_KEY=sk-or-...
+GITHUB_TOKEN=ghp_...
 ```
 
-The transcription script sources this file and fails fast if the key is missing. Never commit the `.env` file.
+The transcription script sources this file and fails fast if any key is missing. The GitHub token must have permission to create issues and comment on pull requests. Never commit the `.env` file.
 
 ## Default Paths and Overrides
 
@@ -68,6 +70,7 @@ Options:
 
 - `--log-file PATH` – append detailed log lines (with timestamps) to `PATH`.
 - `--verbose` – echo log lines to stderr in addition to any file logging.
+- `--test` – switch dependent tooling (e.g. Whisper tiny CPU model) to faster, lower-accuracy settings for dry runs.
 - `-h`, `--help` – display usage information.
 
 If `AUDIO_FILE` is omitted, the newest file in the audio directory is used. The script aborts if the Git working tree is dirty or if the target branch already exists.
@@ -85,6 +88,27 @@ uv run --env-file .env writing-assistant/article_agent_cli.py \
 ```
 
 Provide `--status` as `known` when the citation is already identified, or `unknown` when discovery work is required. `--summary` is optional but gives the agent additional context. Append `--verbose` to stream progress logs. The CLI expects `OPENROUTER_API_KEY` and `TAVILY_API_KEY` to be present in the environment (for example via `uv run --env-file`). It queries OpenRouter's `x-ai/grok-4-fast` model via LangGraph and prints Zotero-ready JSON.
+
+### GitHub issue automation
+
+After the PR is created, `transcribe_and_commit.sh` runs `python -m writing_assistant.github_issue_agent` via `uv`. The agent:
+
+- Reads the newly generated `cleaned_notes/*.json` file.
+- Creates a GitHub issue whose body mirrors the summary, articles, and topics (each rendered as checkbox lists) and cites the JSON path.
+- Comments on the pull request with a link to the issue for easy triage.
+
+Ensure `GITHUB_TOKEN` is configured for these API calls; if the agent step fails, the script logs a warning but leaves the PR untouched.
+
+You can also invoke the automation manually:
+
+```
+uv run --env-file .env python writing-assistant/github_issue_agent_cli.py \
+  --json-path cleaned_notes/1759323531-llm-healing-formatting-workflow.json \
+  --repo andrewplassard/llm-evals-book \
+  --pr-number 123
+```
+
+This is useful for rerunning the workflow after editing the cleaned note or when testing changes.
 
 ## Git Workflow Details
 

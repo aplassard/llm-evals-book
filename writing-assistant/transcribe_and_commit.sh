@@ -8,6 +8,7 @@ Usage: $(basename "$0") [--log-file PATH] [--verbose] [AUDIO_FILE]
 Options:
   --log-file PATH   Append detailed progress logs to PATH.
   --verbose         Mirror log output to stderr.
+  --test            Use faster, low-accuracy models (helpful for dry runs).
   -h, --help        Show this help message.
 
 If AUDIO_FILE is not provided, the newest file in the default audio directory is used.
@@ -17,6 +18,7 @@ USAGE
 # Logging helpers
 LOG_FILE=""
 VERBOSE=0
+TEST_MODE=0
 log_info() {
   local msg="$1"
   local timestamp
@@ -27,6 +29,20 @@ log_info() {
   if [[ $VERBOSE -eq 1 ]]; then
     echo "[$timestamp] $msg" >&2
   fi
+}
+
+derive_repo_slug() {
+  local remote_url="$1"
+  local slug=""
+
+  remote_url=${remote_url%.git}
+  if [[ "$remote_url" =~ ^git@github.com:(.+)$ ]]; then
+    slug="${BASH_REMATCH[1]}"
+  elif [[ "$remote_url" =~ ^https://github.com/(.+)$ ]]; then
+    slug="${BASH_REMATCH[1]}"
+  fi
+
+  echo "$slug"
 }
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -49,6 +65,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --verbose)
       VERBOSE=1
+      shift
+      ;;
+    --test)
+      TEST_MODE=1
       shift
       ;;
     -h|--help)
@@ -112,6 +132,12 @@ set +a
 if [[ -z "${OPENROUTER_API_KEY:-}" ]]; then
   echo "Error: OPENROUTER_API_KEY not set in environment." >&2
   log_info "OPENROUTER_API_KEY not present after sourcing .env."
+  exit 1
+fi
+
+if [[ -z "${GITHUB_TOKEN:-}" ]]; then
+  echo "Error: GITHUB_TOKEN not set in environment." >&2
+  log_info "GITHUB_TOKEN not present after sourcing .env."
   exit 1
 fi
 
@@ -184,10 +210,20 @@ trap 'cleanup "$?"' EXIT
 
 log_info "Temporary transcription directory: $work_dir"
 
-if ! whisper "$audio_file" \
-  --output_dir "$work_dir" \
-  --output_format txt \
-  --verbose False >/dev/null 2>&1; then
+whisper_cmd=(
+  whisper
+  "$audio_file"
+  --output_dir "$work_dir"
+  --output_format txt
+  --verbose False
+)
+
+if [[ $TEST_MODE -eq 1 ]]; then
+  log_info "Test mode enabled: using Whisper tiny CPU configuration for faster runs."
+  whisper_cmd+=(--model tiny --device cpu --fp16 False)
+fi
+
+if ! "${whisper_cmd[@]}" >/dev/null 2>&1; then
   echo "Error: whisper transcription failed." >&2
   log_info "Whisper transcription failed."
   exit 1
@@ -379,6 +415,27 @@ fi
 popd >/dev/null
 
 log_info "Git operations complete."
+
+origin_remote=$(git -C "$repo_root" remote get-url origin)
+repo_slug=$(derive_repo_slug "$origin_remote")
+
+if [[ -z "$repo_slug" ]]; then
+  log_info "Unable to derive repository slug from $origin_remote; skipping issue automation."
+else
+  pr_number=$(gh pr view "$branch_name" --json number --jq '.number' --repo "$repo_slug" 2>/dev/null || true)
+  if [[ -z "$pr_number" ]]; then
+    log_info "Unable to determine PR number for $branch_name; skipping issue automation."
+  else
+    log_info "Invoking GitHub issue agent for cleaned notes." 
+    if ! uv run --env-file .env python writing-assistant/github_issue_agent_cli.py \
+      --json-path "$cleaned_path" \
+      --repo "$repo_slug" \
+      --pr-number "$pr_number"; then
+      echo "Warning: GitHub issue automation failed." >&2
+      log_info "GitHub issue automation failed."
+    fi
+  fi
+fi
 
 echo "Transcript saved to $transcript_dest"
 echo "Transcript copied to $raw_notes_dir/$filename"
