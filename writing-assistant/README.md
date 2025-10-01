@@ -1,6 +1,9 @@
 # Writing Assistant Automation
 
-This directory contains the automation script that converts walking audio notes into actionable writing artifacts and handles the end-to-end GitHub workflow.
+This directory contains automation utilities that support the walking-notes workflow, including:
+
+- `transcribe_and_commit.sh` – converts an audio note into transcripts/clean notes and opens a PR.
+- `article_agent_cli.py` – runs a LangGraph research agent to turn reference requests into Zotero-ready metadata.
 
 ## Overview
 
@@ -27,6 +30,11 @@ Install or ensure access to these tools:
 - [`gh`](https://cli.github.com/) authenticated for pushing branches and opening PRs.
 - `curl` for OpenRouter API calls.
 - Network access to https://openrouter.ai.
+
+Python tooling for the research agent:
+
+- `uv` for dependency installation.
+- Python packages: `langgraph`, `langchain-openai`, `langchain-tavily`.
 
 ## Environment Setup
 
@@ -63,6 +71,20 @@ Options:
 - `-h`, `--help` – display usage information.
 
 If `AUDIO_FILE` is omitted, the newest file in the audio directory is used. The script aborts if the Git working tree is dirty or if the target branch already exists.
+
+### Research agent CLI
+
+Install the dependencies with `uv` (see "Python tooling" above), then run:
+
+```
+python writing-assistant/article_agent_cli.py \
+  --name "Hinton and Salakhutdinov 2006 (Science)" \
+  --details "Science paper on deep autoencoders demonstrating MNIST" \
+  --status known \
+  --summary "Chapter explores role of historical datasets in LLM evaluation."
+```
+
+Provide `--status` as `known` when the citation is already identified, or `unknown` when discovery work is required. `--summary` is optional but gives the agent additional context. Append `--verbose` to stream progress logs. The CLI reads `OPENROUTER_API_KEY` and `TAVILY_API_KEY` from `.env`, queries OpenRouter's `x-ai/grok-4-fast` model via LangGraph, and prints Zotero-ready JSON.
 
 ## Git Workflow Details
 
