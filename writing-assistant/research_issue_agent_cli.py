@@ -116,6 +116,21 @@ def main(argv: Optional[list[str]] = None) -> int:
             }
             for result in state.results
         ],
+        "selected_topic_indices": state.selected_topic_indices,
+        "topic_results": [
+            {
+                "topic_index": result.topic_index,
+                "topic": result.topic.topic,
+                "references": [
+                    item.get("title")
+                    for item in result.structured.get("items", [])
+                    if isinstance(item, dict)
+                ]
+                if isinstance(result.structured, dict)
+                else [],
+            }
+            for result in state.topic_results
+        ],
         "comment_posted": state.comment_body is not None,
     }
     print(json.dumps(output, indent=2))

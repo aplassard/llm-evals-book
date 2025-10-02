@@ -20,7 +20,7 @@ This directory contains automation utilities that support the walking-notes work
    - `articles_to_find`: references to gather, each with a `name`, `details`, and `status` (`known` or `unknown`).
    - `topics_to_review`: follow-up themes, each with a `topic` and supporting detail strings.
 6. Commits both raw and cleaned files on a new worktree branch based on `main`, pushes it, and opens a pull request with GitHub CLI.
-7. Delegates to a LangChain-powered GitHub agent that files a follow-up issue summarising the note and comments on the new pull request with a link to that issue.
+7. Delegates to a LangChain-powered GitHub agent that files a follow-up issue summarising the note and comments on the new pull request with a link to that issue. It then launches the research agent to work through both "Articles to Find" and "Topics to Review", syncing references into Zotero and looping results back into the GitHub issue.
 
 ## Prerequisites
 
@@ -124,7 +124,7 @@ uv run --env-file .env python writing-assistant/research_issue_agent_cli.py \
   --issue 123
 ```
 
-The agent reviews the "Articles to Find" checklist, chooses outstanding entries to research, invokes the article research workflow for each, comments on the issue with the results, and checks off the corresponding boxes. "Topics to Review" remain untouched for now. If `--repo` is omitted, the CLI derives the owner/repo from the local git `origin` remote.
+The agent reviews the "Articles to Find" checklist, chooses outstanding entries to research, invokes the article research workflow for each, and syncs the resulting references into Zotero before commenting on the issue and ticking the boxes. It then repeats the process for "Topics to Review", gathering supporting references for each topic, storing them in Zotero, and marking the corresponding tasks complete. If `--repo` is omitted, the CLI derives the owner/repo from the local git `origin` remote. This agent is invoked automatically at the end of `transcribe_and_commit.sh` after the follow-up issue is created.
 
 ## Git Workflow Details
 
