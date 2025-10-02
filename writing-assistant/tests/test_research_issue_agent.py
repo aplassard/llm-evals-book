@@ -16,6 +16,7 @@ from writing_assistant.research_issue_agent import (
     IssueArticle,
     ResearchResult,
 )
+from writing_assistant.zotero_sync import ZoteroSyncResult
 
 
 def sample_issue_body() -> str:
@@ -73,6 +74,7 @@ def test_format_comment_includes_title_and_sources() -> None:
                 "title": "Reducing the Dimensionality of Data with Neural Networks",
                 "publicationTitle": "Science",
                 "url": "https://www.science.org/doi/10.1126/science.1127647",
+                "itemType": "journalArticle",
             }
         ],
         "context": {
@@ -89,9 +91,16 @@ def test_format_comment_includes_title_and_sources() -> None:
         structured=structured,
         raw_output="",
     )
+    result.zotero = ZoteroSyncResult(
+        key="ABCDEF12",
+        select_uri="zotero://select/items/ABCDEF12",
+        web_url="https://www.zotero.org/users/123/items/ABCDEF12",
+        existed=False,
+    )
 
     comment = format_comment([result])
     assert "Benchmarking Safety Evaluations" in comment
     assert "Science" in comment
     assert "https://www.science.org/doi/10.1126/science.1127647" in comment
     assert "Evidence sources" in comment
+    assert "zotero://select/items/ABCDEF12" in comment

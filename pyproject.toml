@@ -10,4 +10,5 @@ dependencies = [
     "langgraph>=0.6.8",
     "langchain-community>=0.3.11",
     "pytest>=8.4.2",
+    "pyzotero>=1.5.13",
 ]

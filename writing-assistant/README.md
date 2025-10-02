@@ -45,9 +45,12 @@ Place an `.env` file at the repository root (`../.env` relative to this director
 ```
 OPENROUTER_API_KEY=sk-or-...
 GITHUB_TOKEN=ghp_...
+ZOTERO_API_KEY=your_zotero_web_api_key
+ZOTERO_LIBRARY_ID=123456
+ZOTERO_LIBRARY_TYPE=user # or group
 ```
 
-The transcription script sources this file and fails fast if any key is missing. The GitHub token must have permission to create issues and comment on pull requests. Never commit the `.env` file.
+The transcription script sources this file and fails fast if any key is missing. The GitHub token must have permission to create issues and comment on pull requests. The Zotero credentials allow the research agent to create or update items in your library via the Zotero Web API. Never commit the `.env` file.
 
 ## Default Paths and Overrides
 
