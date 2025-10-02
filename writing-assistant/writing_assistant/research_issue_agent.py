@@ -15,6 +15,11 @@ from langgraph.graph import StateGraph
 
 from writing_assistant.article_agent_cli import run_agent
 from writing_assistant.graph import ArticleTask, build_graph, build_user_prompt
+from writing_assistant.zotero_sync import (
+    ZoteroSyncError,
+    ZoteroSyncResult,
+    sync_structured_item,
+)
 
 
 LOGGER = logging.getLogger("writing_assistant.research_issue_agent")
@@ -78,6 +83,8 @@ class ResearchResult:
     article: IssueArticle
     structured: Dict[str, Any]
     raw_output: str
+    zotero: Optional[ZoteroSyncResult] = None
+    zotero_error: Optional[str] = None
 
 
 @dataclass
@@ -207,6 +214,15 @@ def format_comment(results: List[ResearchResult]) -> str:
             if sources:
                 parts.append("  - Evidence sources: " + ", ".join(sources))
 
+        if result.zotero:
+            label = "Existing Zotero item" if result.zotero.existed else "Added to Zotero"
+            zotero_line = f"  - Zotero: [{label}]({result.zotero.select_uri})"
+            if result.zotero.web_url:
+                zotero_line += f" ([Web]({result.zotero.web_url}))"
+            parts.append(zotero_line)
+        elif result.zotero_error:
+            parts.append(f"  - Zotero sync failed: {result.zotero_error}")
+
     return "\n".join(parts)
 
 
@@ -335,6 +351,18 @@ def build_research_graph(
             LOGGER.info("Running article agent for '%s'", article.name)
             research = run_article_research(article, state.summary_text, article_model, article_iterations)
             research.article_index = idx
+            try:
+                sync_result = sync_structured_item(research.structured)
+                research.zotero = sync_result
+                LOGGER.info(
+                    "Synced '%s' to Zotero (key=%s, existed=%s)",
+                    article.name,
+                    sync_result.key,
+                    sync_result.existed,
+                )
+            except ZoteroSyncError as exc:  # pragma: no cover - depends on live API
+                research.zotero_error = str(exc)
+                LOGGER.warning("Zotero sync failed for '%s': %s", article.name, exc)
             results.append(research)
         state.results = results
         state.comment_body = format_comment(results)
