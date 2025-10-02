@@ -427,12 +427,28 @@ else
     log_info "Unable to determine PR number for $branch_name; skipping issue automation."
   else
     log_info "Invoking GitHub issue agent for cleaned notes." 
-    if ! uv run --env-file .env python writing-assistant/github_issue_agent_cli.py \
+    issue_agent_output=""
+    if issue_agent_output=$(uv run --env-file .env python writing-assistant/github_issue_agent_cli.py \
       --json-path "$cleaned_path" \
       --repo "$repo_slug" \
-      --pr-number "$pr_number"; then
+      --pr-number "$pr_number" 2>&1); then
+      echo "$issue_agent_output"
+      issue_number=$(echo "$issue_agent_output" | jq -r '.issue.number // empty' 2>/dev/null || true)
+      if [[ -n "$issue_number" ]]; then
+        log_info "Invoking research issue agent for issue #$issue_number"
+        if ! uv run --env-file .env python writing-assistant/research_issue_agent_cli.py \
+          --repo "$repo_slug" \
+          --issue "$issue_number"; then
+          echo "Warning: GitHub issue research automation failed." >&2
+          log_info "GitHub issue research automation failed."
+        fi
+      else
+        log_info "Issue agent output did not include an issue number; skipping research automation."
+      fi
+    else
       echo "Warning: GitHub issue automation failed." >&2
       log_info "GitHub issue automation failed."
+      echo "$issue_agent_output"
     fi
   fi
 fi
