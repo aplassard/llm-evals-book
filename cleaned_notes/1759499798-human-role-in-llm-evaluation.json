@@ -1,0 +1,122 @@
+{
+  "text_summary": "The speaker plans a chapter on the human role in evaluating LLM-based applications. Humans define system requirements, translate 'what good looks like' into quantitative constraints (latency, cost, quality), and make trade-offs in system design. LLMs act as a stochastic layer that can (1) increase efficiency by removing manual work, (2) improve accuracy by ingesting and processing information, and (3) create multi-turn agentic workflows that require detailed log review. Manual review of logs reveals failure modes (extra tool calls, missed tags, misprioritized messages) and guides which metrics to collect. Reproducibility and inter-rater agreement matter for ambiguous metrics; measures like Cohen's kappa and others should be researched and applied. The chapter should include examples (e.g., email routing/tagging) and guidance on what humans should measure and how to instrument systems.",
+  "notes": [
+    "Humans are responsible for understanding the system, requirements, and defining quantitative success criteria.",
+    "Key measurable characteristics are latency, cost, and quality; trade-offs between them need explicit definition.",
+    "LLM layers are stochastic and typically serve to increase efficiency, improve accuracy, or drive agentic multi-step workflows.",
+    "Efficiency gains look like removing or reducing manual work; design should clarify what manual tasks are being replaced.",
+    "Accuracy advantages stem from the model's ability to consume and synthesize large amounts of information quickly.",
+    "Context window limits affect accuracy, latency, and cost and may create needle-in-the-haystack problems for retrieval or reasoning.",
+    "Reviewing logs and multi-step traces is essential to understand system dynamics, failure modes, and measurement targets.",
+    "Common failure modes include unnecessary extra tool calls, excessive turns, missed tags, and misclassification/prioritization errors.",
+    "Manual review helps identify which metrics matter and how to operationalize them (e.g., turns per task, tool-call frequency).",
+    "Even single-turn apps benefit from human-in-the-loop review to verify decisions and improve prompts/context.",
+    "Inter-rater reproducibility should be measured for ambiguous tasks to set realistic guardrails on model performance.",
+    "Statistical agreement metrics (e.g., Cohen's kappa) and multi-rater variants are relevant and need to be selected and explained.",
+    "Include concrete examples (email routing, multi-tag classification) to illustrate how humans define, measure, and fix issues.",
+    "Instrumentation should capture per-call latency, cost, token usage, tool invocations, turn count, and human labels for ground truth."
+  ],
+  "articles_to_find": [
+    {
+      "name": "Cohen's kappa",
+      "details": "Authoritative descriptions, formula, interpretation guidelines, and examples for two-rater categorical agreement; include caveats and effect of prevalence/bias.",
+      "status": "known"
+    },
+    {
+      "name": "Survey of inter-rater reliability metrics (Krippendorff's alpha, Fleiss' kappa, etc.)",
+      "details": "Compare metrics for different numbers of raters, categorical vs. ordinal data, frameworks for computing and interpreting agreement in ML labeling tasks.",
+      "status": "unknown"
+    },
+    {
+      "name": "Context window effects and 'needle-in-the-haystack' problems in LLMs",
+      "details": "Papers or blog posts analyzing retrieval/selection within long contexts, retrieval-augmented generation trade-offs, and how context-window size impacts latency, cost, and accuracy.",
+      "status": "unknown"
+    },
+    {
+      "name": "Observability and logging best practices for agentic LLM workflows",
+      "details": "Guides or case studies on logging multi-step LLM agent interactions, tracing tool calls, turn counts, and how to extract actionable metrics from traces.",
+      "status": "unknown"
+    },
+    {
+      "name": "Empirical studies on latency/cost/quality trade-offs for LLM-based systems",
+      "details": "Benchmarks or case studies that quantify how model size, prompt length, and multi-turn logic affect latency, token cost, and output quality.",
+      "status": "unknown"
+    },
+    {
+      "name": "Prompt engineering strategies to reduce unnecessary tool calls and turn-taking",
+      "details": "Examples and experiments showing prompt patterns, instruction formats, or system-level constraints that minimize extra tool invocations or conversational turns.",
+      "status": "unknown"
+    },
+    {
+      "name": "Case studies of email classification/routing using LLMs",
+      "details": "Practical examples showing how LLMs are used for routing/prioritization and multi-tag classification, including evaluation metrics and human review processes.",
+      "status": "unknown"
+    }
+  ],
+  "topics_to_review": [
+    {
+      "topic": "Human roles and responsibilities in LLM evaluation",
+      "details": [
+        "Types of decisions humans must make (requirements, success criteria, thresholds).",
+        "How to convert qualitative goals into quantitative metrics (examples and templates).",
+        "Where to place humans in the lifecycle (design, testing, ongoing monitoring)."
+      ]
+    },
+    {
+      "topic": "Metrics: latency, cost, quality",
+      "details": [
+        "Precise definitions and measurement methods for latency, cost (tokens, compute), and quality (accuracy, usefulness, safety).",
+        "How to instrument systems to collect these metrics per call and per workflow.",
+        "Dashboards and alerting thresholds aligned to business goals."
+      ]
+    },
+    {
+      "topic": "Stochastic layer functions and expected behaviors",
+      "details": [
+        "Catalog of roles LLMs play: efficiency substitution, accuracy augmentation, agentic orchestration.",
+        "Expected failure modes per role and mitigation patterns.",
+        "Examples mapping role -> metric priorities (e.g., efficiency-driven systems emphasize throughput)."
+      ]
+    },
+    {
+      "topic": "Agentic workflows and trace analysis",
+      "details": [
+        "How to capture full traces of multi-step interactions (inputs, outputs, tool calls, latencies).",
+        "Metrics to derive from traces: turns per task, tool-call distribution, error propagation points.",
+        "Techniques for root-cause analysis and prompt redesign based on traces."
+      ]
+    },
+    {
+      "topic": "Reproducibility and inter-rater agreement",
+      "details": [
+        "When to measure human-human agreement and why (ambiguous tasks, safety-critical decisions).",
+        "Which statistical agreement measures to use depending on task and rater count.",
+        "How to use agreement metrics to set model performance guardrails and labeling QA processes."
+      ]
+    },
+    {
+      "topic": "Practical examples and case studies",
+      "details": [
+        "Detailed example: email routing and multi-tag classification — instrumentation, human review steps, metrics to track.",
+        "Other domain examples where humans add value in evaluation (moderation, medical summarization, legal drafting).",
+        "Before/after examples showing changes driven by manual log review."
+      ]
+    },
+    {
+      "topic": "Prompting and design interventions",
+      "details": [
+        "How prompting can reduce unnecessary steps (constraints, explicit tool-use instructions, turn limits).",
+        "Prompt templates for common tasks (classification, routing, tagging) and their evaluation plans.",
+        "Human-review workflows to iterate on prompt designs using trace evidence."
+      ]
+    },
+    {
+      "topic": "Context window, retrieval, and information density",
+      "details": [
+        "How to think about information placement in context windows and retrieval strategies to avoid 'needle-in-the-haystack' issues.",
+        "Trade-offs between longer contexts, retrieval layers, and cost/latency implications.",
+        "Experimental designs to evaluate context strategies empirically."
+      ]
+    }
+  ]
+}
