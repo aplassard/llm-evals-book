@@ -1,0 +1,17 @@
+# Humans in the Loop
+
+## The role of people in evaluations
+
+Human judgment anchors quality thresholds that models cannot self-impose. We describe collaboration patterns between researchers, annotators, and domain experts, and outline strategies for sharing evaluation context without biasing outcomes.
+
+## Getting started
+
+Implementing a human-in-the-loop workflow requires planning for onboarding, tooling, and documentation. Practical checklists help teams move from ad-hoc reviews to a predictable process that scales.
+
+## Golden Data
+
+High-fidelity datasets—often called golden sets—enable continuous benchmarking. We discuss sourcing, maintaining, and versioning this data while protecting privacy and reducing labeling drift.
+
+## Reproducibility
+
+Reproducible evaluations insist on transparent configurations, deterministic prompts, and traceable decision logs. We close with guidance on audit trails and techniques for keeping artifacts discoverable over time.
