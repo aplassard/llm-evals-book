@@ -1,0 +1,125 @@
+{
+  "text_summary": "The speaker outlines a chapter on the role of humans in evaluating LM-based applications. Humans are critical for understanding system requirements, defining quantitative constraints, and interpreting trade-offs between latency, cost, and quality. LMs can increase efficiency (automate manual work), improve accuracy (process large amounts of information, retrieval/context-window benefits), and affect system decision-making. Human review of logs and interactions (including multi-call workflows and tool use) reveals failure modes (extra tool calls, unnecessary turns) and informs what to measure. Even single-turn apps benefit from human inspection to refine prompts, context, and tagging behavior (example: email routing and tagging). The speaker emphasizes measuring reproducibility for ambiguous metrics via interrater agreement (Cohen's kappa mentioned) and recommends researching suitable interrater reliability metrics and how to apply them in LM evaluation.",
+  "notes": [
+    "Humans should define system requirements, desired behavior, and quantitative constraints for LM-based applications.",
+    "Key measurable characteristics: latency, cost, and quality; trade-offs between them must be explicitly understood.",
+    "LMs introduce a stochastic layer similar to other ML systems; their effects typically fall into efficiency gains, accuracy improvements, or altered decision-making/workflow dynamics.",
+    "Efficiency: LMs can remove manual work and improve throughput; human oversight clarifies where automation is appropriate.",
+    "Accuracy: LMs can consume and synthesize large amounts of information quickly; retrieval/context-window design ties to accuracy, latency, and cost.",
+    "Needle-in-a-haystack retrieval problems and long-context/text-window strategies are relevant to accuracy and should be considered.",
+    "Observability of runtime behavior (logs, turn-by-turn traces, tool calls) is essential to diagnose where systems succeed or fail.",
+    "Common failure modes include unnecessary tool calls or extra dialog turns; these become measurable metrics after inspection.",
+    "Human-in-the-loop review remains valuable even for single-turn tasks to understand decisions and to refine prompts and context.",
+    "Example application: email assistant—humans should check priority routing, consistent recognition of the boss, and multi-tagging correctness.",
+    "Manual review of outputs identifies missing tags or recurring errors and informs what automated measures to track.",
+    "Reproducibility and interrater agreement matter for ambiguous or subjective metrics; measure how consistently different humans label the same outputs.",
+    "Cohen's kappa was mentioned as a potential interrater metric; other metrics (Krippendorff's alpha, Fleiss' kappa) should be considered.",
+    "For important subjective metrics, gather multi-reviewer labels to estimate human agreement and set realistic performance guardrails for models.",
+    "Actionable evaluation requires combining standard statistical metrics with qualitative human insights from targeted review sessions."
+  ],
+  "articles_to_find": [
+    {
+      "name": "Cohen's kappa (interrater reliability)",
+      "details": "Foundational metric for measuring agreement between two raters beyond chance; look for definitions, calculation, interpretation, and limitations for subjective LM annotations.",
+      "status": "known"
+    },
+    {
+      "name": "Krippendorff's alpha and Fleiss' kappa",
+      "details": "Alternative interrater reliability metrics that support multiple annotators and different data types; compare applicability to LM annotation tasks.",
+      "status": "unknown"
+    },
+    {
+      "name": "Survey/review of interrater reliability measures for subjective annotation",
+      "details": "Review paper or guide comparing kappa, alpha, percent agreement, and when to use each in ambiguous labeling contexts.",
+      "status": "unknown"
+    },
+    {
+      "name": "Human evaluation methodologies for large language models",
+      "details": "Papers or best-practice guides describing human-in-the-loop evaluation protocols, annotation workflows, instructions design, and quality control.",
+      "status": "unknown"
+    },
+    {
+      "name": "Papers on LLM tool use and agent observability (e.g., ReAct, Toolformer)",
+      "details": "Research describing LMs calling external tools, logging interactions, and methods to analyze/diagnose multi-step workflows and tool-call behavior.",
+      "status": "unknown"
+    },
+    {
+      "name": "Retrieval-augmented generation (RAG) and long-context literature",
+      "details": "Works on retrieval techniques, long-context models (Longformer, Reformer, etc.), and design patterns for 'needle-in-a-haystack' information retrieval from long documents.",
+      "status": "unknown"
+    },
+    {
+      "name": "System design papers on latency-cost-quality trade-offs in ML/LLM systems",
+      "details": "Engineering literature or case studies that quantify trade-offs and strategies (caching, model distillation, batching, prompt engineering) for production LLM apps.",
+      "status": "unknown"
+    },
+    {
+      "name": "Case studies of human-in-the-loop LLM deployments (e.g., email assistants, classifiers)",
+      "details": "Real-world examples showing how teams instrumented, reviewed, and iterated on LLM-based assistants, including annotation schemas and observed failure modes.",
+      "status": "unknown"
+    },
+    {
+      "name": "Guides on logging and observability for conversational/multi-call systems",
+      "details": "Operational best practices for logging prompts, responses, tool calls, and latency to enable human review and automated metrics extraction.",
+      "status": "unknown"
+    }
+  ],
+  "topics_to_review": [
+    {
+      "topic": "Human role and responsibilities in LM evaluation",
+      "details": [
+        "Define the specific human tasks: requirement capture, prompt design, annotation, error analysis, and metric selection.",
+        "When to use human review vs automated metrics.",
+        "Designing review sessions: sample sizes, frequency, and focus areas."
+      ]
+    },
+    {
+      "topic": "Key measurable characteristics and trade-offs",
+      "details": [
+        "Operational definitions and units for latency, cost, and quality.",
+        "Ways to measure and report trade-offs (e.g., cost per query vs accuracy).",
+        "Techniques to optimize for different objectives (prompt engineering, model selection, caching)."
+      ]
+    },
+    {
+      "topic": "Observability and logging for diagnosing LLM workflows",
+      "details": [
+        "What to log: prompts, context, model outputs, tool calls, latencies, external API calls, and decisions.",
+        "How to analyze logs to detect inefficiencies like extra tool calls or unnecessary dialog turns.",
+        "Automated metrics derivable from logs (turn counts, tool-call frequency, per-step latency)."
+      ]
+    },
+    {
+      "topic": "Annotation practices and interrater reliability",
+      "details": [
+        "Annotation schema design for subjective outputs (tags, priorities, categories).",
+        "Selecting interrater metrics (Cohen's kappa, Fleiss' kappa, Krippendorff's alpha) and interpreting results.",
+        "Sampling strategies for reproducibility studies and thresholds for acceptable agreement."
+      ]
+    },
+    {
+      "topic": "Prompt and context design for single- and multi-turn applications",
+      "details": [
+        "How to choose what information to include in the prompt for tasks like email routing or tagging.",
+        "Iterative testing via manual review to surface missing context (e.g., boss recognition, implicit priorities).",
+        "Mechanisms to inject guardrails or business rules when models systematically miss constraints."
+      ]
+    },
+    {
+      "topic": "Retrieval, context-window, and 'needle-in-a-haystack' problems",
+      "details": [
+        "When to use retrieval augmentation versus longer context windows.",
+        "Metrics to evaluate retrieval quality and impact on downstream LM accuracy.",
+        "Cost and latency implications of retrieval systems in production."
+      ]
+    },
+    {
+      "topic": "Evaluation framework combining quantitative metrics and qualitative review",
+      "details": [
+        "How to combine automated metrics with targeted human reviews to form actionable signals.",
+        "Designing dashboards and alerts for regression in key metrics discovered via human review.",
+        "Experiment design for measuring effect of prompt/context changes on performance and agreement."
+      ]
+    }
+  ]
+}
