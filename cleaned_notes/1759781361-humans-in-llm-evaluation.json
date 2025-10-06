@@ -1,0 +1,112 @@
+{
+  "text_summary": "The speaker plans a chapter about the role of humans in evaluating LLM-based applications. Humans are essential for understanding system requirements, defining quantitative constraints (latency, cost, quality), and making trade-offs. LLMs function as a stochastic layer that can (1) increase efficiency by removing manual work, (2) improve accuracy by consuming large context and surfacing relevant info, and (3) participate in complex agentic workflows requiring inspection. Human review of logs and interactions reveals failure modes (excess tool calls, extra turns, missing tags, mis-prioritized emails) and informs what to measure. Even single-turn apps benefit from human-in-the-loop review to refine prompting and context. Reproducibility and inter-rater agreement are important for ambiguous metrics; measures like Cohen's kappa and other agreement statistics should be researched and applied. The speaker also flagged context-window trade-offs (latency, cost, needle-in-the-haystack issues) as a related area to investigate.",
+  "notes": [
+    "Humans define requirements and what 'good' looks like; they translate that into quantitative constraints.",
+    "Key measurable system characteristics: latency, cost, and quality; trade-offs should be documented and analyzed.",
+    "LLM stochastic layer typically serves to increase efficiency (remove manual work), improve accuracy (process large amounts of information), and enable agentic decision workflows.",
+    "Context window size ties into latency, cost, and ability to surface needle-in-the-haystack information.",
+    "Reviewing logs and interaction traces is critical to understand system dynamics and identify failure modes.",
+    "Common measurable failure modes: extra tool calls, unnecessary conversational turns, missed tags, and incorrect prioritization (e.g., not recognizing boss emails).",
+    "Manual review informs which metrics to track and what instrumentation is needed.",
+    "Even single-turn applications require human review to validate decisions and shape prompt/context design.",
+    "Reproducibility matters for ambiguous labels; measure inter-rater agreement to set realistic guardrails.",
+    "Cohen's kappa and other inter-rater reliability statistics should be researched and applied to LLM evaluation.",
+    "Design evaluation processes that include sampling, multi-rater labeling, and clear annotation guidelines.",
+    "Agentic workflows may need specialized instrumentation to capture tool usage, decision points, and turn counts."
+  ],
+  "articles_to_find": [
+    {
+      "name": "Cohen's kappa (inter-rater agreement)",
+      "details": "Definition, formula, interpretation, example calculations, and guidance on use when comparing pairs of annotators; strengths and limitations.",
+      "status": "known"
+    },
+    {
+      "name": "Fleiss' kappa and Krippendorff's alpha",
+      "details": "Multi-rater agreement statistics: formulas, use cases, when to prefer one over another, handling missing ratings and different label types.",
+      "status": "unknown"
+    },
+    {
+      "name": "Inter-rater reliability best practices for subjective annotation in ML",
+      "details": "Papers or guides on annotation study design, sample sizes, annotator training, adjudication, and establishing gold standards for ambiguous tasks.",
+      "status": "unknown"
+    },
+    {
+      "name": "Context window effects and 'needle-in-the-haystack' retrieval with LLMs",
+      "details": "Research on how context window size affects the model's ability to find small relevant signals in large context, impact on latency and cost, and mitigation strategies (retrieval, chunking, sparse attention).",
+      "status": "unknown"
+    },
+    {
+      "name": "Evaluation metrics and trade-off frameworks for latency, cost, and quality in LLM applications",
+      "details": "Articles or case studies that jointly analyze latency, monetary cost, and quality metrics; methods for multi-objective optimization or dashboarding trade-offs.",
+      "status": "unknown"
+    },
+    {
+      "name": "Agentic workflow logging and observability for LLM systems",
+      "details": "Guides or case studies on instrumenting agentic pipelines: what to log (tool calls, inputs/outputs, turn counts, latencies), storage/format, and analysis techniques.",
+      "status": "unknown"
+    },
+    {
+      "name": "Human-in-the-loop evaluation strategies for single-turn vs multi-turn LLM applications",
+      "details": "Practices for sampling, review frequency, feedback loops into prompting, and metrics to track for both single-turn classifiers and multi-turn agentic systems.",
+      "status": "unknown"
+    }
+  ],
+  "topics_to_review": [
+    {
+      "topic": "Defining measurable evaluation criteria",
+      "details": [
+        "Operationalize latency, cost, and quality for different application types (single-turn classification, multi-turn agentic workflows, retrieval-augmented generation).",
+        "Create precise metrics (e.g., average response latency, API call cost per successful outcome, precision/recall/F1 for labeled outputs).",
+        "Design dashboards and alerting thresholds for key metrics."
+      ]
+    },
+    {
+      "topic": "Human review and instrumentation",
+      "details": [
+        "Instrumentation: what to log (timestamps, model prompt, model output, tool calls, turn count, intermediate decisions, cost per call).",
+        "Sampling strategies for manual review (random, failure-focused, stratified by confidence).",
+        "Annotation guidelines and training for reviewers to reduce ambiguity."
+      ]
+    },
+    {
+      "topic": "Failure mode identification and measurement",
+      "details": [
+        "Common failure modes: extraneous tool calls, unnecessary turns, missing tags, mis-prioritization.",
+        "Metrics to detect these automatically (mean turns per task, tool-call frequency, tag coverage rates, priority mismatch rates).",
+        "How to feed these findings back into prompt engineering and model/tool design."
+      ]
+    },
+    {
+      "topic": "Reproducibility and inter-rater agreement",
+      "details": [
+        "Select appropriate inter-rater metrics (Cohen's kappa, Fleiss' kappa, Krippendorff's alpha) depending on number of raters and label types.",
+        "Design experiments to measure human-human and human-model agreement and set guardrails.",
+        "Statistical interpretation and acceptable thresholds for production use."
+      ]
+    },
+    {
+      "topic": "Context window trade-offs",
+      "details": [
+        "Impact of context size on latency, cost, and model accuracy when searching for small signals.",
+        "Retrieval/encoding strategies to reduce context while preserving salient information.",
+        "Empirical tests to quantify needle-in-the-haystack retrieval performance as context grows."
+      ]
+    },
+    {
+      "topic": "Agentic workflows and observability",
+      "details": [
+        "Define representation of agentic flows (graphs of calls, decision points, and tool usage).",
+        "Best practices for logging intermediate state and tool outputs for post-hoc analysis.",
+        "Metrics for agentic efficiency and correctness (turns-to-solution, tool-utility rates, end-to-end success rate)."
+      ]
+    },
+    {
+      "topic": "Examples and case studies to include in the chapter",
+      "details": [
+        "Email routing/classification example with concrete prompts, typical failure modes, and annotation schema.",
+        "A multi-tool agent example showing extra tool calls and how to measure/mitigate them.",
+        "A reproducibility example demonstrating inter-rater agreement calculations and consequences for acceptance criteria."
+      ]
+    }
+  ]
+}
