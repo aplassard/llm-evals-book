@@ -433,7 +433,30 @@ else
       --repo "$repo_slug" \
       --pr-number "$pr_number" 2>&1); then
       echo "$issue_agent_output"
-      issue_number=$(echo "$issue_agent_output" | jq -r '.issue.number // empty' 2>/dev/null || true)
+      if ! issue_agent_json=$(ISSUE_AGENT_OUTPUT="$issue_agent_output" python3 - <<'PY' 2>/dev/null
+import json
+import os
+
+text = os.environ.get("ISSUE_AGENT_OUTPUT", "")
+decoder = json.JSONDecoder()
+
+for idx, char in enumerate(text):
+    if char == '{':
+        try:
+            obj, _ = decoder.raw_decode(text[idx:])
+        except json.JSONDecodeError:
+            continue
+        print(json.dumps(obj))
+        break
+PY
+      ); then
+        issue_agent_json=""
+      fi
+      if [[ -n "$issue_agent_json" ]]; then
+        issue_number=$(echo "$issue_agent_json" | jq -r '.issue.number // empty' 2>/dev/null || true)
+      else
+        issue_number=""
+      fi
       if [[ -n "$issue_number" ]]; then
         log_info "Invoking research issue agent for issue #$issue_number"
         if ! uv run --env-file .env python writing-assistant/research_issue_agent_cli.py \
