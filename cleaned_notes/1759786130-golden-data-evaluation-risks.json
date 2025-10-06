@@ -1,0 +1,108 @@
+{
+  "text_summary": "The speaker defines \"golden data\" as validated, human-labeled examples used to measure and build evaluation systems, especially when transitioning to LLMs as automated judges. Golden data should be large, continuously updated, and representative so LLM evaluators can be validated against it. Important adjacent concerns include labeling scale, statistical confidence (e.g., confidence intervals, inter-rater reproducibility), and the danger of overfitting evaluators to the golden set, which requires careful monitoring and collecting new golden data when systems or prompts change.",
+  "notes": [
+    "Golden data = validated human-labeled data used to evaluate system outputs and to validate automated evaluators.",
+    "The primary purpose of golden data is to measure how well LLMs (or other automated systems) can evaluate live responses.",
+    "Define the correct decisions/outcomes for a task, then have humans label sufficient examples to create the golden population.",
+    "Label volume matters; statistical considerations like confidence intervals and inter-rater reproducibility should inform sample sizes.",
+    "Golden data helps quantify evaluator performance and is critical to trusting automated evaluation systems.",
+    "Golden data must evolve over time as prompts, models, and user behavior change—it's not a one-off artifact.",
+    "There is a risk of overfitting evaluation systems to the golden data, which can make evaluation metrics unrepresentative of real performance.",
+    "Teams should avoid simply tuning evaluators to the golden set; instead, investigate why performance changes and collect new golden examples as needed.",
+    "Frameworks and processes are needed for continuous collection, validation, and maintenance of golden data (to be elaborated in the 'LLM as a judge' section).",
+    "Practical evaluation design should balance scale, representativeness, and reproducibility while guarding against feedback loops that degrade generalization."
+  ],
+  "articles_to_find": [
+    {
+      "name": "Inter-rater reliability methods (Cohen's kappa, Krippendorff's alpha)",
+      "details": "Survey or tutorial papers on measuring inter-rater agreement for categorical and ordinal labels; practical guidance on interpretation and sample size implications.",
+      "status": "unknown"
+    },
+    {
+      "name": "Sampling and confidence intervals for labeled datasets",
+      "details": "References on how to compute sample sizes and confidence intervals for proportions and accuracy estimates in evaluation datasets; power analysis for labeling studies.",
+      "status": "unknown"
+    },
+    {
+      "name": "Papers on using LLMs as evaluators (LLM-as-judge literature)",
+      "details": "Recent research and benchmarks where LLMs are used to score or rank outputs, including methodology for validation against human judgments and techniques to reduce evaluator variance.",
+      "status": "unknown"
+    },
+    {
+      "name": "Overfitting to benchmark/golden datasets",
+      "details": "Work discussing how models and evaluation systems overfit to benchmarks, dataset hacking, and recommended mitigation strategies (e.g., held-out or rolling validation sets).",
+      "status": "unknown"
+    },
+    {
+      "name": "Dataset maintenance and evolution best practices",
+      "details": "Industry or academic guidance on continuously updating validation/golden datasets in production systems; topics: drift monitoring, active sampling, versioning.",
+      "status": "unknown"
+    },
+    {
+      "name": "Human-in-the-loop annotation workflows and quality control",
+      "details": "Research or engineering guides on scalable annotation pipelines, annotator training, adjudication, consensus labeling, and quality metrics.",
+      "status": "unknown"
+    },
+    {
+      "name": "Calibration and uncertainty estimation for LLM evaluators",
+      "details": "Papers on model calibration, uncertainty quantification, and methods to make automated evaluators' scores reliable and interpretable.",
+      "status": "unknown"
+    },
+    {
+      "name": "Statistical frameworks for evaluation with changing prompts/systems",
+      "details": "Work on experimental design and statistical testing when the evaluation distribution shifts over time or when prompts change frequently.",
+      "status": "unknown"
+    }
+  ],
+  "topics_to_review": [
+    {
+      "topic": "Golden data lifecycle",
+      "details": [
+        "Define scope and success criteria for golden examples per task",
+        "Process for initial collection, labeling guidelines, and verification",
+        "Versioning, storage, and metadata to track collection time, prompt version, and annotator info",
+        "Policies for scheduled re-labeling or augmentation as system or prompt changes occur"
+      ]
+    },
+    {
+      "topic": "Labeling scale and statistical design",
+      "details": [
+        "How to compute required sample sizes for target confidence intervals on evaluator accuracy",
+        "Stratified sampling strategies to ensure coverage of difficult or rare cases",
+        "Trade-offs between labeling cost and statistical power"
+      ]
+    },
+    {
+      "topic": "Inter-rater reproducibility and annotator management",
+      "details": [
+        "Annotator training, calibration sessions, and adjudication workflows",
+        "Metrics to track annotator agreement and detect drift or bias",
+        "Protocol for updating labeling schema when ambiguity is detected"
+      ]
+    },
+    {
+      "topic": "LLMs as evaluators: validation and deployment",
+      "details": [
+        "Validation pipeline to compare LLM judgments vs golden labels (metrics, thresholds)",
+        "Techniques to reduce evaluator stochasticity (ensembles, calibration prompts, sampling strategies)",
+        "Monitoring LLM evaluator drift and plans for retraining or prompt tuning"
+      ]
+    },
+    {
+      "topic": "Overfitting and robustness of evaluation systems",
+      "details": [
+        "Indicators that an evaluator is overfitting to golden data (sudden performance jumps, narrow error modes)",
+        "Use of held-out or time-separated golden sets to detect overfitting",
+        "Procedures for investigating poor evaluator generalization and collecting counterexamples"
+      ]
+    },
+    {
+      "topic": "Operational practices for continuous evaluation",
+      "details": [
+        "Automated pipelines to surface candidate golden data from live traffic (active learning)",
+        "Criteria for promoting examples into the golden set vs temporary test sets",
+        "Governance: who signs off on gold labels, change logs, and impact analysis after updates"
+      ]
+    }
+  ]
+}

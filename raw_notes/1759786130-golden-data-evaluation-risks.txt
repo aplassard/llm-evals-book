@@ -1,0 +1,46 @@
+Okay, so the next thing I want to discuss is related to the human and the loop piece of it.
+And this is the idea of golden data.
+And what golden data is, is it is validated data within your system.
+And the reason this is important is eventually we're going to be building towards LLMs doing much of the evaluation.
+And the golden data helps us to understand the performance of our evaluation system.
+So, you know, what that would look like is once you define the correct decisions to be made on a particular task,
+then you can, then you would have people go through and label those and label those at a sufficient scale.
+This is where some discussions about like statistics and confidence intervals are probably going to tie into a previous chapter.
+So it's not necessary to go into much depth here, but like noting that there is volume worth understanding here
+that ties into like inter-rater reproducibility and things like that becomes some useful point,
+but maybe not the most important point.
+Okay, so what does golden data actually look like?
+In this case, then, what golden data is, is a population of data where we have people go through
+and either answer particular questions or review for the outcomes we'd like to have happen
+or annotate flows with various results of interest.
+And this then becomes a store of information that the evaluation system can then be built on.
+So the eventual workflow we're going to follow is have LLMs, once again, have all the stochastic properties
+we're going to discuss at any point in the book, built into them, actually go through and review
+live responses to the system, and evaluating them on these results on the golden data
+is how we know that they are performing well or well enough at evaluating the live system.
+And so this is a highly useful task to do that, and this becomes data that is critical to understanding
+the overall performance and accuracy of our evaluations.
+Obviously, the more data we have here, the better, the more confident that will be,
+but there's a scale issue as well.
+This is also not a one-off activity, especially as prompts are changing
+and systems are moving over time.
+Having more and more of this data or having this data evolve with the system
+then becomes increasingly useful.
+And there's likely the entire frameworks around how we build toward this
+that we can get into, but I don't think we need to go too far into this right now,
+as we'll get deeper into it in the LLM as a judge section of the book.
+The final thing to note in this is overfitting.
+So golden data has parallels to evaluation data sets from more traditional machine learning work.
+And one common issue that comes up in those spaces is that a system could be overfit to a training data population.
+And what that means is the result is not representative of the true outcome.
+And the model is maybe to learn too closely to a system at play.
+Same thing that happened with golden data, right?
+Since we're building an evaluation framework that uses this to understand the performance of it,
+then there becomes a risk to having the evaluation system be overfit to that golden data.
+So, you know, there's some desire to have the evaluation system perform well on that golden data
+because you want to trust it.
+But if it does not perform well, the inclination will likely be to then adjust it and fit it so it does.
+And in that case, it's really on the team to weigh those results
+and make sure they are understanding what is, why things are performing better or worse.
+And then as you're making adjustments, likely collect new golden data to help continuously evaluate that.
+And I think it will come up more later, but I think that's a good starting point in this chapter.
