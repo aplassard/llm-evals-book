@@ -1,0 +1,5 @@
+# Foreward
+
+Welcome to *Evaluating LLM Based Applications*. This foreward outlines the journey behind the book, the challenges encountered while building evaluation workflows, and the motivations for sharing them in an open, reproducible format.
+
+The intent is to set the stage for readers who are balancing rapid product delivery with responsible oversight. You will see a recurring theme: evaluations are not a one-time task, but a continuous dialogue between systems and the people who rely on them.

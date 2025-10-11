@@ -1,0 +1,17 @@
+# Introduction
+
+## Why evaluations matter
+
+Evaluations are the feedback loop that keeps model-driven products aligned with the goals of their stakeholders. In this section we discuss the risks of unchecked automation, techniques for capturing user intent, and the importance of measuring outcomes beyond raw accuracy scores.
+
+## Stochastic processes
+
+Large language models are inherently stochastic. Understanding their probabilistic behavior helps us design experiments that reveal trends, not just single-point anecdotes. We explore sampling considerations, temperature settings, and how randomness propagates through downstream decision systems.
+
+## Statistics primer
+
+To interpret evaluation results responsibly we revisit essential statistical tools: confidence intervals, hypothesis testing, and practical significance. Examples illustrate how to quantify uncertainty without losing sight of product realities.
+
+## How to use this book
+
+The remainder of the book follows a hands-on pattern. Each chapter introduces an evaluation concept, demonstrates the supporting workflow, and references runnable code. Readers are encouraged to work through the examples in the `code` directory while annotating their own findings in the provided data sets.

@@ -1,0 +1,9 @@
+---
+title: "Evaluating LLM Based Applications"
+author: "Andrew Plassard"
+description: "A practical guide to building robust evaluation workflows for LLM-driven systems."
+---
+
+# Preface
+
+This project collects the working manuscript, code, and data assets for the book *Evaluating LLM Based Applications*. Each chapter is authored in Quarto and draws from the accompanying examples stored in the `code`, `figures`, and `data` directories.

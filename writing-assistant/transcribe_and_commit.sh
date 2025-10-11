@@ -110,8 +110,6 @@ log_info "All required commands located."
 
 audio_dir="${AUDIO_DIR:-$HOME/Dropbox/walking_notes/audio}"
 transcripts_dir="${TRANSCRIPTS_DIR:-$HOME/Dropbox/walking_notes/transcripts}"
-raw_notes_dir="$repo_root/raw_notes"
-cleaned_notes_dir="$repo_root/cleaned_notes"
 env_file="${repo_root}/.env"
 base_branch="${BASE_BRANCH:-main}"
 
@@ -142,10 +140,8 @@ if [[ -z "${GITHUB_TOKEN:-}" ]]; then
 fi
 
 mkdir -p "$transcripts_dir"
-mkdir -p "$raw_notes_dir"
-mkdir -p "$cleaned_notes_dir"
 
-log_info "Ensured transcript, raw notes, and cleaned notes directories exist."
+log_info "Ensured transcript directory exists."
 
 audio_file="$audio_arg"
 if [[ -z "$audio_file" ]]; then
@@ -292,9 +288,12 @@ log_info "Branch name: $branch_name"
 
 mv "$transcript_dest" "$transcripts_dir/$filename"
 transcript_dest="$transcripts_dir/$filename"
-cp "$transcript_dest" "$raw_notes_dir/$filename"
+git_artifacts_dir="$work_dir/git-artifacts"
+mkdir -p "$git_artifacts_dir"
+staged_transcript_path="$git_artifacts_dir/$filename"
+cp "$transcript_dest" "$staged_transcript_path"
 
-log_info "Transcript renamed and copied to raw notes: $raw_notes_dir/$filename"
+log_info "Transcript staged for git worktree: $staged_transcript_path"
 
 transcript_contents=$(cat "$transcript_file")
 
@@ -326,9 +325,9 @@ if [[ -z "$notes_content" || "$notes_content" == "null" ]]; then
 fi
 
 cleaned_filename="${filename%.txt}.json"
-cleaned_path="$cleaned_notes_dir/$cleaned_filename"
+staged_cleaned_path="$git_artifacts_dir/$cleaned_filename"
 
-if ! echo "$notes_content" | jq '.' > "$cleaned_path"; then
+if ! echo "$notes_content" | jq '.' > "$staged_cleaned_path"; then
   echo "Error: structured notes are not valid JSON." >&2
   log_info "Structured notes JSON invalid."
   exit 1
@@ -336,14 +335,14 @@ fi
 
 required_keys=(text_summary notes articles_to_find topics_to_review)
 for key in "${required_keys[@]}"; do
-  if ! jq -e --arg key "$key" 'has($key)' < "$cleaned_path" >/dev/null; then
+  if ! jq -e --arg key "$key" 'has($key)' < "$staged_cleaned_path" >/dev/null; then
     echo "Error: structured notes missing required key '$key'." >&2
     log_info "Structured notes missing key: $key"
     exit 1
   fi
 done
 
-log_info "Structured notes saved to $cleaned_path"
+log_info "Structured notes staged for git worktree: $staged_cleaned_path"
 
 # Prepare git worktree based on main
 log_info "Setting up git worktree for branch $branch_name."
@@ -369,8 +368,11 @@ worktree_raw_notes_dir="$git_worktree_dir/raw_notes"
 worktree_cleaned_notes_dir="$git_worktree_dir/cleaned_notes"
 
 mkdir -p "$worktree_raw_notes_dir" "$worktree_cleaned_notes_dir"
-cp "$transcript_dest" "$worktree_raw_notes_dir/$filename"
-cp "$cleaned_path" "$worktree_cleaned_notes_dir/$cleaned_filename"
+worktree_transcript_path="$worktree_raw_notes_dir/$filename"
+worktree_cleaned_path="$worktree_cleaned_notes_dir/$cleaned_filename"
+cp "$staged_transcript_path" "$worktree_transcript_path"
+cp "$staged_cleaned_path" "$worktree_cleaned_path"
+cleaned_path="$worktree_cleaned_path"
 
 log_info "Copied files into worktree."
 
@@ -433,7 +435,30 @@ else
       --repo "$repo_slug" \
       --pr-number "$pr_number" 2>&1); then
       echo "$issue_agent_output"
-      issue_number=$(echo "$issue_agent_output" | jq -r '.issue.number // empty' 2>/dev/null || true)
+      if ! issue_agent_json=$(ISSUE_AGENT_OUTPUT="$issue_agent_output" python3 - <<'PY' 2>/dev/null
+import json
+import os
+
+text = os.environ.get("ISSUE_AGENT_OUTPUT", "")
+decoder = json.JSONDecoder()
+
+for idx, char in enumerate(text):
+    if char == '{':
+        try:
+            obj, _ = decoder.raw_decode(text[idx:])
+        except json.JSONDecodeError:
+            continue
+        print(json.dumps(obj))
+        break
+PY
+      ); then
+        issue_agent_json=""
+      fi
+      if [[ -n "$issue_agent_json" ]]; then
+        issue_number=$(echo "$issue_agent_json" | jq -r '.issue.number // empty' 2>/dev/null || true)
+      else
+        issue_number=""
+      fi
       if [[ -n "$issue_number" ]]; then
         log_info "Invoking research issue agent for issue #$issue_number"
         if ! uv run --env-file .env python writing-assistant/research_issue_agent_cli.py \
@@ -454,8 +479,8 @@ else
 fi
 
 echo "Transcript saved to $transcript_dest"
-echo "Transcript copied to $raw_notes_dir/$filename"
-echo "Structured notes saved to $cleaned_path"
+echo "Commit includes raw_notes/$filename"
+echo "Commit includes cleaned_notes/$cleaned_filename"
 echo "Branch $branch_name created and pushed with PR title: $pr_title"
 echo "Summary: $summary_line"
 
