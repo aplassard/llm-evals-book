@@ -462,7 +462,176 @@ The accompanying code in `code/format_evaluation_with_healing.py` demonstrates a
 
 ## Routing and Classification
 
-Routing helps direct requests to specialized models or templates, while classification verifies that responses meet policy constraints. We examine decision boundaries, confidence scoring, and fallback strategies.
+Classification and routing tasks form the backbone of many LLM applications. Unlike open-ended generation, these tasks have discrete outcomes: assigning a label, choosing a category, or directing a request to the appropriate handler. The evaluation question is clear: did the model make the right choice?
+
+These tasks appear throughout production systems:
+
+**Customer support routing**: Incoming tickets need to be directed to the right team (billing, technical, sales). Route incorrectly and customers wait longer while tickets are manually reassigned.
+
+**Content moderation**: User-generated content must be classified for policy violations (spam, harassment, inappropriate material). False negatives allow harmful content through; false positives frustrate legitimate users.
+
+**Priority assignment**: Not all tasks are equally urgent. Systems need to identify which customer issues require immediate attention versus which can be handled in the normal queue.
+
+**Intent recognition**: Conversational interfaces must understand what users want (search for information, make a purchase, file a complaint) to provide appropriate responses.
+
+**Document triage**: Organizations process thousands of documents daily. Automatic classification by type, topic, or required action enables efficient workflows.
+
+What makes these tasks particularly important for evaluation is that they're **measurable**. Unlike assessing whether generated text is "good," classification accuracy can be computed precisely. You can track how often the model makes correct decisions, what types of errors occur, and whether performance is improving or degrading over time.
+
+### How LLMs Perform Classification
+
+Language models weren't originally designed for classification—they generate text by predicting the next token. But they've proven remarkably effective at classification tasks through a simple pattern: frame classification as text generation with constrained outputs.
+
+Consider ticket routing. Instead of training a specialized classifier, you prompt the model:
+
+```
+Classify this support ticket into one of these categories:
+- billing
+- technical
+- sales
+
+Ticket: "I was charged twice for my subscription this month"
+Category:
+```
+
+The model generates text ("billing") which you then treat as a classification decision. This approach has several advantages:
+
+**No training required**: You can add new categories or change the taxonomy without retraining. Just update the prompt.
+
+**Contextual reasoning**: The model can consider nuances that rule-based systems miss. A ticket about "canceling because the product doesn't work" might be both technical and billing—the model can make judgment calls.
+
+**Explanation capability**: You can ask the model to explain its classification, providing transparency for debugging and user trust.
+
+**Few-shot learning**: Including 2-3 examples in the prompt often dramatically improves accuracy for ambiguous cases.
+
+However, this flexibility comes with challenges. The model might generate text that doesn't match any category. It might be inconsistent across similar inputs. These are the kinds of failures we need to measure and track.
+
+### A Classification Example
+
+Let's build a simple email priority classifier that demonstrates evaluation patterns for classification tasks:
+
+```{python}
+#| eval: false
+#| code-fold: false
+# See code/email_classifier.py for complete implementation
+
+from openai import OpenAI
+from pydantic import BaseModel, Field
+from typing import Literal
+
+client = OpenAI()
+
+class EmailClassification(BaseModel):
+    """Classification result for an email."""
+    priority: Literal["urgent", "normal", "low"]
+    reasoning: str = Field(description="Brief explanation")
+
+def classify_email(subject: str, body: str) -> EmailClassification:
+    """Classify email priority using LLM."""
+    prompt = f"""Classify this email's priority level.
+
+Categories:
+- urgent: Requires immediate attention (outages, security, 
+  data loss)
+- normal: Standard request, handle within 24 hours
+- low: Enhancement request, documentation, general inquiry
+
+Provide:
+1. priority: one of the three categories
+2. reasoning: brief explanation (1 sentence)
+
+Subject: {subject}
+Body: {body}
+
+Return JSON with priority and reasoning fields."""
+    
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.3
+    )
+    
+    import json
+    output = response.choices[0].message.content
+    # Extract JSON (handle markdown fences)
+    if "```" in output:
+        output = output.split("```")[1]
+        if output.startswith("json"):
+            output = output[4:]
+    
+    data = json.loads(output.strip())
+    return EmailClassification(**data)
+
+# Example emails
+test_emails = [
+    {
+        "subject": "Production database is down",
+        "body": "Cannot connect to DB. All services failing.",
+        "expected": "urgent"
+    },
+    {
+        "subject": "Question about API rate limits",
+        "body": "What are the current rate limits for the API?",
+        "expected": "low"
+    },
+    {
+        "subject": "Payment failed for invoice #1234",
+        "body": "Tried to pay but card was declined. Need help.",
+        "expected": "normal"
+    }
+]
+
+print("Email Priority Classification\n")
+print("=" * 60)
+
+for email in test_emails:
+    result = classify_email(email["subject"], email["body"])
+    correct = result.priority == email["expected"]
+    
+    print(f"\nSubject: {email['subject']}")
+    print(f"Predicted: {result.priority}")
+    print(f"Expected: {email['expected']}")
+    print(f"Correct: {'✓' if correct else '✗'}")
+    print(f"Reasoning: {result.reasoning}")
+```
+
+This example demonstrates several important patterns:
+
+**Structured output**: The classification returns not just a label but also reasoning, enabling richer evaluation and debugging.
+
+**Clear category definitions**: The prompt explicitly defines what each priority level means, reducing ambiguity.
+
+**Explicit validation**: We compare predictions against expected labels to compute accuracy.
+
+### Evaluating Classification Performance
+
+For classification tasks, we can apply standard metrics from machine learning:
+
+**Accuracy**: The percentage of correct predictions. Simple and interpretable, but can be misleading with imbalanced classes.
+
+**Confusion matrix**: Shows which categories are confused with each other. If "normal" emails are frequently misclassified as "urgent," you'll see it immediately.
+
+**Precision and recall**: For each category, precision asks "of the emails we labeled as urgent, how many actually were?" while recall asks "of the actually urgent emails, how many did we catch?"
+
+These metrics tell different stories about classifier performance. High accuracy with low recall for "urgent" means you're missing critical emails. High precision but low accuracy means you're being too conservative. The confusion matrix shows you exactly which categories need better distinction in your prompts.
+
+The code in `code/classification_metrics.py` provides implementations of these standard metrics including confusion matrices and per-class precision/recall calculations.
+
+### Iterating on Classification Prompts
+
+The beauty of LLM-based classification is that you can improve performance by refining prompts rather than retraining models. Common improvements:
+
+**Add few-shot examples**: Include 2-3 examples of each category, especially for ambiguous cases.
+
+**Clarify category boundaries**: Make explicit distinctions between similar categories ("urgent means active outage, normal means degraded performance").
+
+**Request chain-of-thought**: Ask the model to think through the classification step by step before deciding.
+
+**Provide context**: If routing decisions depend on customer tier or time of day, include that information.
+
+Each prompt change can be evaluated using the metrics above. Did accuracy improve? Did the confusion matrix change? This tight feedback loop makes prompt engineering for classification tasks particularly tractable.
+
+The example code in `code/email_classifier.py` and `code/classification_metrics.py` provides a complete framework for evaluating classification tasks with metrics tracking.
 
 ## Formatting example
 
