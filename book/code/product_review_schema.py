@@ -1,4 +1,5 @@
 """Pydantic schema for product review analysis."""
+# start snippet review_analysis
 from pydantic import BaseModel, Field, validator
 from typing import Literal, List, Optional
 
@@ -44,3 +45,4 @@ class ReviewAnalysis(BaseModel):
         if len(v) != len(set(v)):
             raise ValueError('List items must be unique')
         return v
+# end snippet review_analysis

@@ -1,10 +1,13 @@
 ---
 title: "Conformance & Control Checks"
-child:
-  - chapters/04-conformance-and-control-checks/intro.qmd
-  - chapters/04-conformance-and-control-checks/format-matching.qmd
-  - chapters/04-conformance-and-control-checks/routing-classification.qmd
-  - chapters/04-conformance-and-control-checks/formatting-example.qmd
-  - chapters/04-conformance-and-control-checks/classification-example.qmd
 ---
 
+{{< include 04-conformance-and-control-checks/intro.qmd >}}
+
+{{< include 04-conformance-and-control-checks/format-matching.qmd >}}
+
+{{< include 04-conformance-and-control-checks/routing-classification.qmd >}}
+
+{{< include 04-conformance-and-control-checks/formatting-example.qmd >}}
+
+{{< include 04-conformance-and-control-checks/classification-example.qmd >}}

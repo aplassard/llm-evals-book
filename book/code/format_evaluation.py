@@ -1,4 +1,5 @@
 """Format evaluation utilities for LLM outputs."""
+# start snippet format_evaluation
 import json
 import re
 from typing import Optional, List
@@ -125,3 +126,4 @@ def compute_conformance(results: List[ValidationResult]) -> ConformanceMetrics:
         json_parse_failures=json_failures,
         schema_validation_failures=schema_failures
     )
+# end snippet format_evaluation

@@ -1,4 +1,5 @@
 """Example: Evaluating format conformance for product review analysis."""
+# start snippet format_evaluation_example
 from openai import OpenAI
 from product_review_schema import ReviewAnalysis
 from format_evaluation import validate_output, compute_conformance
@@ -98,3 +99,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+# end snippet format_evaluation_example

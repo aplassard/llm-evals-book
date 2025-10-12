@@ -1,11 +1,10 @@
 """Format evaluation with LLM healing for malformed outputs."""
+# start snippet format_evaluation_healing
 from openai import OpenAI
 from product_review_schema import ReviewAnalysis
 from format_evaluation import extract_json, ValidationResult
 import json
 from pydantic import ValidationError
-from typing import List
-from dataclasses import dataclass
 
 
 client = OpenAI()
@@ -168,3 +167,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+# end snippet format_evaluation_healing
