@@ -1,0 +1,15 @@
+When you build an LLM application, you're typically not just generating text for humans to read. You're integrating the model's output into a larger system: parsing structured data, routing requests based on classifications, or feeding results into downstream processing pipelines. This integration requirement introduces a fundamental challenge: language models are trained to generate human-readable text, not to produce perfectly formatted data structures.
+
+Consider a customer support application that uses an LLM to categorize incoming tickets. You need the model to return a category label ("billing", "technical", "sales") that your ticketing system can process. But the model might return "This appears to be a billing question" or wrap the answer in explanatory prose. Or imagine an application that extracts structured information from documents—you need valid JSON with specific fields, but the model might include markdown code fences, add helpful commentary, or miss required fields entirely.
+
+These aren't occasional edge cases. They're systematic consequences of how language models work. The model has learned that humans appreciate context and explanation. It's been trained on diverse text where JSON appears in markdown blocks, where classifications come with reasoning, where formats vary. This flexibility makes models powerful, but it also means their outputs often don't match the precise structures your code expects.
+
+This chapter addresses a practical question: how do you evaluate whether your LLM application produces outputs that your systems can actually consume? We'll explore two core patterns that emerge repeatedly in production LLM applications:
+
+**Format matching and validation**: Ensuring the model's text output can be parsed into the data structures your application needs. This includes detecting schema violations, measuring conformance rates, and understanding where format failures occur most frequently.
+
+**Classification and routing**: Using LLMs to make categorical decisions—assigning labels, determining priorities, routing requests—and evaluating the accuracy of these decisions using standard classification metrics.
+
+These aren't just engineering concerns—they're evaluation challenges. You need to measure how often your application produces usable outputs, understand the distribution of failure modes, and track whether changes to prompts or models improve or degrade structural reliability. Without systematic evaluation of conformance and control, you're deploying applications that might work beautifully in demos but fail unpredictably in production.
+
+The techniques in this chapter sit at the intersection of prompt engineering, software engineering, and evaluation methodology. They're practical patterns you'll use repeatedly as you build LLM applications that need to integrate with existing systems and maintain reliability at scale.

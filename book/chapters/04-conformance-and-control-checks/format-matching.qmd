@@ -1,0 +1,443 @@
+## Format Matching
+
+The first step in evaluating structured outputs is establishing what "correct" means. Format matching is about defining schemas that specify the expected structure of your outputs, then systematically measuring how often your LLM application produces outputs that conform to those schemas.
+
+### Why Format Failures Happen
+
+Language models produce format failures for predictable reasons. They've been trained on text where JSON appears in many contexts: wrapped in markdown code blocks, embedded in explanatory prose, formatted with varying styles. When you prompt a model to "return JSON", it's drawing on patterns where JSON is often accompanied by helpful context.
+
+Common formatting issues include:
+
+- **Wrapper text**: "Here's the analysis you requested: {...}" or "The result is: {...}"
+- **Markdown formatting**: Wrapping output in \`\`\`json ... \`\`\` code blocks
+- **Structural variations**: Missing quotes around keys, trailing commas, inconsistent nesting
+- **Schema deviations**: Including extra fields, missing required fields, or using unexpected field names
+- **Type mismatches**: Returning a string where a number is expected, or a single value instead of a list
+
+These aren't random errors. They reflect how JSON appears in the model's training data. Understanding this helps us design better evaluation strategies—we're not just checking for bugs, we're measuring how well we've aligned the model's natural output patterns with our application's requirements.
+
+### Defining Schemas with Pydantic
+
+Pydantic provides a powerful framework for defining and validating data structures. Unlike basic JSON schema validation, Pydantic models integrate type checking, custom validators, and clear error messages into a Pythonic interface. This makes them ideal for both runtime validation and evaluation measurement.
+
+Let's work through a concrete example. Suppose you're building an application that analyzes product reviews and extracts structured insights. You want the model to return sentiment, key themes, and actionable recommendations. Here's how you'd define the expected schema:
+
+```python
+# See code/product_review_schema.py for complete implementation
+
+from pydantic import BaseModel, Field, validator
+from typing import Literal, List, Optional
+from datetime import datetime
+
+class ReviewAnalysis(BaseModel):
+    """Structured analysis of a product review."""
+    
+    sentiment: Literal["positive", "negative", "neutral", "mixed"]
+    confidence: float = Field(
+        ge=0.0, 
+        le=1.0, 
+        description="Confidence in sentiment classification"
+    )
+    
+    key_themes: List[str] = Field(
+        min_items=1,
+        max_items=5,
+        description="Main themes mentioned in the review"
+    )
+    
+    product_issues: Optional[List[str]] = Field(
+        default=None,
+        description="Specific problems mentioned"
+    )
+    
+    recommendations: List[str] = Field(
+        min_items=1,
+        description="Actionable recommendations based on the review"
+    )
+    
+    @validator('key_themes', 'recommendations', 'product_issues')
+    def no_empty_strings(cls, v):
+        if v is not None and any(not item.strip() for item in v):
+            raise ValueError(
+                'List items cannot be empty or whitespace'
+            )
+        return v
+    
+    @validator('key_themes', 'recommendations')
+    def no_duplicates(cls, v):
+        if len(v) != len(set(v)):
+            raise ValueError('List items must be unique')
+        return v
+```
+
+This schema encodes several layers of requirements:
+
+**Type constraints**: `sentiment` must be one of four specific strings. `confidence` must be a float. `key_themes` must be a list of strings.
+
+**Range constraints**: `confidence` must be between 0 and 1. `key_themes` must have 1-5 items.
+
+**Optionality**: `product_issues` is optional (reviews might not mention problems).
+
+**Custom validation**: Lists can't contain empty strings or duplicates.
+
+These constraints capture both the structure your code requires and domain-specific requirements (like having at least one theme but no more than five).
+
+### Measuring Conformance
+
+With a schema defined, you can systematically measure how often your LLM produces valid outputs. Let's implement a complete evaluation pipeline:
+
+```{python}
+#| eval: false
+#| code-fold: false
+# See code/format_evaluation.py for complete implementation
+
+import json
+import re
+from openai import OpenAI
+from pydantic import ValidationError
+from typing import Optional, Tuple
+from dataclasses import dataclass
+
+@dataclass
+class ValidationResult:
+    """Result of validating a single output."""
+    success: bool
+    parsed_data: Optional[dict]
+    validation_error: Optional[str]
+    raw_output: str
+
+def extract_json(text: str) -> str:
+    """Extract JSON from common LLM formatting patterns."""
+    # Remove markdown code fences
+    pattern = r'```(?:json)?\s*([\s\S]*?)\s*```'
+    match = re.search(pattern, text)
+    if match:
+        return match.group(1)
+    
+    # Try to find JSON object boundaries
+    brace_match = re.search(r'\{[\s\S]*\}', text)
+    if brace_match:
+        return brace_match.group(0)
+    
+    return text
+
+def validate_output(raw_output: str, schema_class) -> ValidationResult:
+    """Validate LLM output against schema."""
+    try:
+        # Extract and parse JSON
+        cleaned = extract_json(raw_output)
+        data = json.loads(cleaned)
+        
+        # Validate against schema
+        schema_class(**data)
+        
+        return ValidationResult(
+            success=True,
+            parsed_data=data,
+            validation_error=None,
+            raw_output=raw_output
+        )
+    
+    except json.JSONDecodeError as e:
+        return ValidationResult(
+            success=False,
+            parsed_data=None,
+            validation_error=f"JSON parsing error: {str(e)}",
+            raw_output=raw_output
+        )
+    
+    except ValidationError as e:
+        return ValidationResult(
+            success=False,
+            parsed_data=None,
+            validation_error=f"Schema validation error: {str(e)}",
+            raw_output=raw_output
+        )
+
+@dataclass
+class ConformanceMetrics:
+    """Aggregate metrics for a set of validations."""
+    total: int
+    successful: int
+    json_parse_failures: int
+    schema_validation_failures: int
+    
+    @property
+    def conformance_rate(self) -> float:
+        """Percentage of outputs that fully conform to schema."""
+        return self.successful / self.total if self.total > 0 else 0.0
+    
+    @property
+    def parse_rate(self) -> float:
+        """Percentage that are valid JSON."""
+        parsed = self.total - self.json_parse_failures
+        return parsed / self.total if self.total > 0 else 0.0
+
+def compute_conformance(results: List[ValidationResult]) -> ConformanceMetrics:
+    """Compute conformance metrics from validation results."""
+    json_failures = sum(
+        1 for r in results 
+        if 'JSON parsing error' in (r.validation_error or '')
+    )
+    schema_failures = sum(
+        1 for r in results 
+        if 'Schema validation error' in (r.validation_error or '')
+    )
+    successful = sum(1 for r in results if r.success)
+    
+    return ConformanceMetrics(
+        total=len(results),
+        successful=successful,
+        json_parse_failures=json_failures,
+        schema_validation_failures=schema_failures
+    )
+```
+
+Now let's see this in action with a real example using the OpenAI API:
+
+```{python}
+#| eval: false
+#| code-fold: false
+# See code/format_evaluation_example.py
+
+from openai import OpenAI
+from product_review_schema import ReviewAnalysis
+
+client = OpenAI()
+
+def analyze_review(review_text: str) -> str:
+    """Get structured analysis from LLM."""
+    prompt = f"""Analyze this product review and return a JSON object with:
+    - sentiment: "positive", "negative", "neutral", or "mixed"
+    - confidence: float between 0.0 and 1.0
+    - key_themes: list of 1-5 main themes (strings)
+    - product_issues: optional list of specific problems
+    - recommendations: list of actionable recommendations
+    
+    Review: {review_text}
+    
+    Return ONLY the JSON object, no additional text."""
+    
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.3
+    )
+    
+    return response.choices[0].message.content
+
+# Example usage
+test_reviews = [
+    "Great product! Fast delivery and exactly as described.",
+    "Disappointed. Cheap material, broke after a week.",
+    "It's okay. Does the job but nothing special."
+]
+
+results = []
+for review in test_reviews:
+    raw_output = analyze_review(review)
+    result = validate_output(raw_output, ReviewAnalysis)
+    results.append(result)
+    
+    print(f"\nReview: {review[:50]}...")
+    print(f"Valid: {result.success}")
+    if not result.success:
+        print(f"Error: {result.validation_error}")
+
+metrics = compute_conformance(results)
+print(f"\nConformance Rate: {metrics.conformance_rate:.1%}")
+print(f"Parse Rate: {metrics.parse_rate:.1%}")
+```
+
+This evaluation pipeline gives you concrete numbers: what percentage of outputs are usable? When failures occur, are they JSON parsing issues or schema violations? This data helps you diagnose problems and track improvements.
+
+### Interpreting Conformance Metrics
+
+Conformance metrics tell different stories:
+
+**High conformance (>90%)**: Your prompt and schema are well-aligned. The model consistently produces usable outputs. Focus on evaluating semantic correctness rather than structural issues.
+
+**Low parse rate (<70%)**: The model isn't producing valid JSON. This suggests prompt engineering issues—you may need to be more explicit about requiring JSON output, provide examples, or use system messages to enforce formatting.
+
+**High parse rate but low conformance**: The model produces valid JSON but with the wrong structure. This often indicates schema misalignment—the model interprets your requirements differently than intended. Review your prompt to ensure field names, types, and constraints are clearly specified.
+
+**Inconsistent conformance**: Some inputs produce valid outputs, others don't. Look for patterns in failures—do they occur with longer inputs, specific content types, or edge cases? This helps you understand when your application needs fallback handling.
+
+The key insight: conformance rate is not just a quality metric, it's a diagnostic tool. It tells you where your prompt engineering efforts should focus and whether schema changes improve or degrade reliability.
+
+### LLM Healing
+
+When model responses deviate from the required format, a secondary "healing" pass can repair the structure without re-running the full task. We explore techniques for building healers that are transparent, measurable, and integrated into CI workflows.
+
+Even with careful prompt engineering and schema validation, format failures will occur. The traditional approach is to build extensive error-handling logic: regex patterns for common malformations, type coercion for mismatched fields, default values for missing data. This logic becomes brittle and hard to maintain as schemas evolve.
+
+LLM healing offers an alternative: when validation fails, use another LLM call to repair the malformed output rather than writing custom repair logic. The healer receives three inputs:
+
+1. The expected schema specification
+2. The actual malformed output that failed validation
+3. The specific validation error encountered
+
+The healer's task is straightforward: return a corrected version that conforms to the schema. This approach is particularly effective for structural errors—missing quotes, incorrect field names, wrong types—where the semantic content is correct but the formatting is off.
+
+### A Practical Healing Example
+
+Let's extend our product review example to include healing. When the model produces invalid JSON, we'll attempt to repair it automatically:
+
+```{python}
+#| eval: false
+#| code-fold: false
+# See code/format_evaluation_with_healing.py
+
+from openai import OpenAI
+from product_review_schema import ReviewAnalysis
+from format_evaluation import (
+    extract_json, 
+    ValidationResult,
+    ConformanceMetrics
+)
+import json
+from pydantic import ValidationError
+
+client = OpenAI()
+
+def create_healing_prompt(
+    schema_json: str,
+    malformed_output: str,
+    error_message: str
+) -> str:
+    """Generate a prompt for healing malformed output."""
+    return f"""The following output failed validation.
+
+Expected schema:
+{schema_json}
+
+Actual output that failed:
+{malformed_output}
+
+Validation error:
+{error_message}
+
+Return ONLY the corrected JSON that conforms to the schema.
+Do not include explanations or additional text."""
+
+def heal_output(
+    raw_output: str,
+    schema_class,
+    max_attempts: int = 2
+) -> ValidationResult:
+    """Attempt to heal malformed output using LLM."""
+    
+    # First attempt: direct validation
+    try:
+        cleaned = extract_json(raw_output)
+        data = json.loads(cleaned)
+        schema_class(**data)
+        
+        return ValidationResult(
+            success=True,
+            parsed_data=data,
+            validation_error=None,
+            raw_output=raw_output
+        )
+    except (json.JSONDecodeError, ValidationError) as e:
+        error_message = str(e)
+        current_output = raw_output
+    
+    # Healing attempts
+    for attempt in range(max_attempts):
+        healing_prompt = create_healing_prompt(
+            schema_json=schema_class.schema_json(indent=2),
+            malformed_output=current_output,
+            error_message=error_message
+        )
+        
+        # Call LLM for repair
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": healing_prompt}],
+            temperature=0.0  # Use temperature=0 for deterministic repairs
+        )
+        
+        healed_output = response.choices[0].message.content
+        
+        # Try validating the healed output
+        try:
+            cleaned = extract_json(healed_output)
+            data = json.loads(cleaned)
+            schema_class(**data)
+            
+            # Success!
+            return ValidationResult(
+                success=True,
+                parsed_data=data,
+                validation_error=f"Healed on attempt {attempt + 1}",
+                raw_output=healed_output
+            )
+        except (json.JSONDecodeError, ValidationError) as e:
+            error_message = str(e)
+            current_output = healed_output
+    
+    # All healing attempts failed
+    return ValidationResult(
+        success=False,
+        parsed_data=None,
+        validation_error=f"Healing failed after {max_attempts} attempts: {error_message}",
+        raw_output=current_output
+    )
+
+# Example: Intentionally create a malformed output for testing
+malformed_json = '''{
+    "sentiment": positive,
+    "confidence": 0.85,
+    "key_themes": ["quality", "price"],
+    "recommendations": ["Improve documentation"]
+}'''
+
+print("Testing healing on malformed JSON...\n")
+print("Original (malformed):")
+print(malformed_json)
+print()
+
+result = heal_output(malformed_json, ReviewAnalysis)
+
+if result.success:
+    print("✓ Healing succeeded!")
+    print(f"Status: {result.validation_error}")
+    print("\nHealed output:")
+    print(json.dumps(result.parsed_data, indent=2))
+else:
+    print("✗ Healing failed")
+    print(f"Error: {result.validation_error}")
+```
+
+In this example, the original JSON is missing quotes around the `positive` value. Traditional JSON parsers would fail immediately. The healer receives the malformed output, sees the parse error, and returns a corrected version with proper quoting.
+
+### When to Use Healing
+
+Healing is most valuable when:
+
+**The original generation was expensive**: If you spent significant tokens on a complex reasoning task and only the final formatting failed, healing can salvage that work without re-running the entire pipeline.
+
+**The error is structural, not semantic**: Healing works well for missing quotes, wrong field names, or type mismatches. It's less effective when the model fundamentally misunderstood the task.
+
+**You have diverse failure modes**: If failures happen in unpredictable ways, healing is more maintainable than writing custom repair logic for every possible error pattern.
+
+Healing is less useful when:
+
+**The initial generation is cheap**: For simple extraction tasks, retrying with an improved prompt may be more efficient than healing.
+
+**Failures are systematic**: If 50% of outputs fail validation in the same way, fix your prompt rather than healing every failure.
+
+**Semantic errors dominate**: If the model is producing valid JSON with wrong answers, healing won't help—you need better prompts or a different model.
+
+### Implementation Considerations
+
+**Model selection**: You can use a smaller, cheaper model for healing than for generation. Simple structural repairs don't require the same capability as the original task. However, for complex schema repairs, using the same model may be necessary.
+
+**Temperature settings**: Use `temperature=0` or very low values for healing. You want deterministic repairs, not creative variations.
+
+**Context inclusion**: For simple format repairs, the schema and error alone usually suffice. Including the original prompt context increases token usage without much benefit for structural fixes.
+
+**Retry limits**: Most implementations limit healing to 1-2 attempts. Beyond that, you're likely dealing with a fundamental problem that healing can't fix.
+
+The accompanying code in `code/format_evaluation_with_healing.py` demonstrates a complete implementation with configurable retry logic and metric tracking.
