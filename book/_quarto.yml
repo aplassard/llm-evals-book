@@ -1,14 +1,20 @@
 project:
   type: book
   output-dir: _output
+
 book:
   title: "Evaluating LLM Based Applications"
   author: "Andrew Plassard"
   chapters:
+    - index.qmd
     - chapters/01-foreward.qmd
     - chapters/02-introduction.qmd
     - chapters/03-humans-in-the-loop.qmd
     - chapters/04-conformance-and-control-checks.qmd
+
+filters:
+  - include-code-files
+
 format:
   html:
     theme: cosmo

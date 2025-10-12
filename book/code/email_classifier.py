@@ -7,13 +7,14 @@ import json
 
 client = OpenAI()
 
-
+# start snippet schema
 class EmailClassification(BaseModel):
     """Classification result for an email."""
     priority: Literal["urgent", "normal", "low"]
     reasoning: str = Field(description="Brief explanation")
+# end snippet schema
 
-
+# start snippet classify
 def classify_email(subject: str, body: str) -> EmailClassification:
     """Classify email priority using LLM.
     
@@ -57,6 +58,7 @@ Return JSON with priority and reasoning fields."""
     
     data = json.loads(output.strip())
     return EmailClassification(**data)
+# end snippet classify
 
 
 def main():

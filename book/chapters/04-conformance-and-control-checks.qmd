@@ -508,46 +508,19 @@ However, this flexibility comes with challenges. The model might generate text t
 
 ### A Classification Example
 
-Let's build a simple email priority classifier that demonstrates evaluation patterns for classification tasks:
+Let's build a simple email priority classifier that demonstrates evaluation patterns for classification tasks. First, we define the schema for our classification result:
 
-```{python}
-#| eval: false
-#| code-fold: false
-# See code/email_classifier.py for complete implementation
+```{.python include="code/email_classifier.py" snippet="schema"}
+```
 
-from openai import OpenAI
-from pydantic import BaseModel, Field
-from typing import Literal
+This Pydantic model ensures our classification always returns a valid priority level and includes reasoning for transparency.
 
-client = OpenAI()
+Now we implement the classifier function that calls the LLM:
 
-class EmailClassification(BaseModel):
-    """Classification result for an email."""
-    priority: Literal["urgent", "normal", "low"]
-    reasoning: str = Field(description="Brief explanation")
+```{.python include="code/email_classifier.py" snippet="classify"}
+```
 
-def classify_email(subject: str, body: str) -> EmailClassification:
-    """Classify email priority using LLM."""
-    prompt = f"""Classify this email's priority level.
-
-Categories:
-- urgent: Requires immediate attention (outages, security, 
-  data loss)
-- normal: Standard request, handle within 24 hours
-- low: Enhancement request, documentation, general inquiry
-
-Provide:
-1. priority: one of the three categories
-2. reasoning: brief explanation (1 sentence)
-
-Subject: {subject}
-Body: {body}
-
-Return JSON with priority and reasoning fields."""
-    
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}],
+This example demonstrates several important patterns:
         temperature=0.3
     )
     
