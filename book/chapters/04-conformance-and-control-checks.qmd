@@ -510,62 +510,14 @@ However, this flexibility comes with challenges. The model might generate text t
 
 Let's build a simple email priority classifier that demonstrates evaluation patterns for classification tasks. First, we define the schema for our classification result:
 
-```{.python include="../code/email_classifier.py" snippet="schema"}
+```{.python include="code/email_classifier.py" snippet="schema"}
 ```
 
 This Pydantic model ensures our classification always returns a valid priority level and includes reasoning for transparency.
 
 Now we implement the classifier function that calls the LLM:
 
-```{.python include="../code/email_classifier.py" snippet="classify"}
-```
-
-This example demonstrates several important patterns:
-        temperature=0.3
-    )
-    
-    import json
-    output = response.choices[0].message.content
-    # Extract JSON (handle markdown fences)
-    if "```" in output:
-        output = output.split("```")[1]
-        if output.startswith("json"):
-            output = output[4:]
-    
-    data = json.loads(output.strip())
-    return EmailClassification(**data)
-
-# Example emails
-test_emails = [
-    {
-        "subject": "Production database is down",
-        "body": "Cannot connect to DB. All services failing.",
-        "expected": "urgent"
-    },
-    {
-        "subject": "Question about API rate limits",
-        "body": "What are the current rate limits for the API?",
-        "expected": "low"
-    },
-    {
-        "subject": "Payment failed for invoice #1234",
-        "body": "Tried to pay but card was declined. Need help.",
-        "expected": "normal"
-    }
-]
-
-print("Email Priority Classification\n")
-print("=" * 60)
-
-for email in test_emails:
-    result = classify_email(email["subject"], email["body"])
-    correct = result.priority == email["expected"]
-    
-    print(f"\nSubject: {email['subject']}")
-    print(f"Predicted: {result.priority}")
-    print(f"Expected: {email['expected']}")
-    print(f"Correct: {'✓' if correct else '✗'}")
-    print(f"Reasoning: {result.reasoning}")
+```{.python include="code/email_classifier.py" snippet="classify"}
 ```
 
 This example demonstrates several important patterns:

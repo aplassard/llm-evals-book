@@ -11,4 +11,6 @@ dependencies = [
     "langchain-community>=0.3.11",
     "pytest>=8.4.2",
     "pyzotero>=1.5.13",
+    "make>=0.1.6.post2",
+    "quarto-cli>=1.8.25",
 ]

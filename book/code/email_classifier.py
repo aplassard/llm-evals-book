@@ -114,7 +114,7 @@ def main():
         print(f"Subject: {email['subject']}")
         print(f"Predicted: {result.priority}")
         print(f"Expected: {email['expected']}")
-        print(f"Correct: {'✓' if is_correct else '✗'}")
+        print(f"Correct: {'yes' if is_correct else 'no'}")
         print(f"Reasoning: {result.reasoning}")
     
     # Summary
