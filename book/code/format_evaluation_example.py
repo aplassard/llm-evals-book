@@ -35,6 +35,7 @@ def analyze_review(review_text: str) -> str:
     )
     
     return response.choices[0].message.content
+# end snippet format_evaluation_example
 
 
 def main():
@@ -99,4 +100,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-# end snippet format_evaluation_example

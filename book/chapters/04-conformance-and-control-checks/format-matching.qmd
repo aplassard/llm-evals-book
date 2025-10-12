@@ -37,33 +37,17 @@ This schema encodes several layers of requirements:
 
 These constraints capture both the structure your code requires and domain-specific requirements (like having at least one theme but no more than five).
 
-### Measuring Conformance
+### Measuring and Interpreting Conformance
 
-With a schema defined, you can systematically measure how often your LLM produces valid outputs. Let's implement a complete evaluation pipeline:
+With a schema defined, measuring conformance is straightforward: attempt to parse each LLM output as JSON, then validate it against your Pydantic schema. Track three key metrics:
 
-```{.python include="code/format_evaluation.py" snippet="format_evaluation"}
-```
+**Parse rate**: Percentage of outputs that are valid JSON. Low parse rates (<70%) indicate the model isn't producing JSON at all—you need clearer formatting instructions in your prompt.
 
-Now let's see this in action with a real example using the OpenAI API:
+**Conformance rate**: Percentage that fully satisfy the schema. This is your primary quality metric. High conformance (>90%) means your prompt and schema are well-aligned. Low conformance despite high parse rates suggests the model produces valid JSON but with the wrong structure—clarify field names, types, and constraints in your prompt.
 
-```{.python include="code/format_evaluation_example.py" snippet="format_evaluation_example"}
-```
+**Failure patterns**: When validation fails, record whether it's a JSON parsing error or a schema violation, and which fields are problematic. Systematic failures (e.g., 50% of outputs missing the same required field) indicate prompt engineering issues. Random failures suggest you need fallback handling for edge cases.
 
-This evaluation pipeline gives you concrete numbers: what percentage of outputs are usable? When failures occur, are they JSON parsing issues or schema violations? This data helps you diagnose problems and track improvements.
-
-### Interpreting Conformance Metrics
-
-Conformance metrics tell different stories:
-
-**High conformance (>90%)**: Your prompt and schema are well-aligned. The model consistently produces usable outputs. Focus on evaluating semantic correctness rather than structural issues.
-
-**Low parse rate (<70%)**: The model isn't producing valid JSON. This suggests prompt engineering issues—you may need to be more explicit about requiring JSON output, provide examples, or use system messages to enforce formatting.
-
-**High parse rate but low conformance**: The model produces valid JSON but with the wrong structure. This often indicates schema misalignment—the model interprets your requirements differently than intended. Review your prompt to ensure field names, types, and constraints are clearly specified.
-
-**Inconsistent conformance**: Some inputs produce valid outputs, others don't. Look for patterns in failures—do they occur with longer inputs, specific content types, or edge cases? This helps you understand when your application needs fallback handling.
-
-The key insight: conformance rate is not just a quality metric, it's a diagnostic tool. It tells you where your prompt engineering efforts should focus and whether schema changes improve or degrade reliability.
+Implementing this is simple: call your LLM with diverse inputs, attempt to parse and validate each response, and compute aggregate statistics. The code in `format_evaluation.py` and `format_evaluation_example.py` demonstrates a complete evaluation pipeline. The key insight: conformance metrics are diagnostic tools that tell you where to focus your prompt engineering efforts.
 
 ### LLM Healing
 

@@ -116,6 +116,7 @@ def heal_output(
         ),
         raw_output=current_output
     )
+# end snippet format_evaluation_healing
 
 
 def main():
@@ -167,4 +168,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-# end snippet format_evaluation_healing
