@@ -22,7 +22,7 @@ Pydantic provides a powerful framework for defining and validating data structur
 
 Let's work through a concrete example. Suppose you're building an application that analyzes product reviews and extracts structured insights. You want the model to return sentiment, key themes, and actionable recommendations. Here's how you'd define the expected schema:
 
-```{.python include="code/product_review_schema.py" snippet="review_analysis"}
+```{.python include="code/chapter-4/product_review_schema.py" snippet="review_analysis"}
 ```
 
 This schema encodes several layers of requirements:
@@ -47,7 +47,7 @@ With a schema defined, measuring conformance is straightforward: attempt to pars
 
 **Failure patterns**: When validation fails, record whether it's a JSON parsing error or a schema violation, and which fields are problematic. Systematic failures (e.g., 50% of outputs missing the same required field) indicate prompt engineering issues. Random failures suggest you need fallback handling for edge cases.
 
-Implementing this is simple: call your LLM with diverse inputs, attempt to parse and validate each response, and compute aggregate statistics. The code in `format_evaluation.py` and `format_evaluation_example.py` demonstrates a complete evaluation pipeline. The key insight: conformance metrics are diagnostic tools that tell you where to focus your prompt engineering efforts.
+Implementing this is simple: call your LLM with diverse inputs, attempt to parse and validate each response, and compute aggregate statistics. The code in `code/chapter-4/format_evaluation.py` and `code/chapter-4/format_evaluation_example.py` demonstrates a complete evaluation pipeline. The key insight: conformance metrics are diagnostic tools that tell you where to focus your prompt engineering efforts.
 
 ### LLM Healing
 
@@ -67,7 +67,7 @@ The healer's task is straightforward: return a corrected version that conforms t
 
 Let's extend our product review example to include healing. When the model produces invalid JSON, we'll attempt to repair it automatically:
 
-```{.python include="code/format_evaluation_with_healing.py" snippet="format_evaluation_healing"}
+```{.python include="code/chapter-4/format_evaluation_with_healing.py" snippet="format_evaluation_healing"}
 ```
 
 In this example, the original JSON is missing quotes around the `positive` value. Traditional JSON parsers would fail immediately. The healer receives the malformed output, sees the parse error, and returns a corrected version with proper quoting.
@@ -100,4 +100,4 @@ Healing is less useful when:
 
 **Retry limits**: Most implementations limit healing to 1-2 attempts. Beyond that, you're likely dealing with a fundamental problem that healing can't fix.
 
-The accompanying code in `code/format_evaluation_with_healing.py` demonstrates a complete implementation with configurable retry logic and metric tracking.
+The accompanying code in `code/chapter-4/format_evaluation_with_healing.py` demonstrates a complete implementation with configurable retry logic and metric tracking.

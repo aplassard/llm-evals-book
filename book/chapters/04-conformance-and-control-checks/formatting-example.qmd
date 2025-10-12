@@ -15,7 +15,7 @@ We'll use this dataset to evaluate how well our LLM-based review analyzer produc
 
 ### Complete Evaluation Pipeline
 
-The code in `code/format_validation_on_dataset.py` demonstrates a complete evaluation pipeline:
+The code in `code/chapter-4/format_validation_on_dataset.py` demonstrates a complete evaluation pipeline:
 
 1. **Load the dataset**: Use Hugging Face's datasets library to load a sample of Amazon reviews
 2. **Process each review**: Call the LLM to analyze sentiment and extract themes
@@ -32,7 +32,7 @@ The implementation loads reviews from the Amazon Reviews 2023 dataset, processes
 You can run the evaluation yourself:
 
 ```bash
-python code/format_validation_on_dataset.py
+python code/chapter-4/format_validation_on_dataset.py
 ```
 
 This will process 50 reviews and report conformance metrics, showing exactly how reliable your format validation is on real data.

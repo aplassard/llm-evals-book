@@ -48,14 +48,14 @@ However, this flexibility comes with challenges. The model might generate text t
 
 Let's build a simple email priority classifier that demonstrates evaluation patterns for classification tasks. First, we define the schema for our classification result:
 
-```{.python include="code/email_classifier.py" snippet="schema"}
+```{.python include="code/chapter-4/email_classifier.py" snippet="schema"}
 ```
 
 This Pydantic model ensures our classification always returns a valid priority level and includes reasoning for transparency.
 
 Now we implement the classifier function that calls the LLM:
 
-```{.python include="code/email_classifier.py" snippet="classify"}
+```{.python include="code/chapter-4/email_classifier.py" snippet="classify"}
 ```
 
 This example demonstrates several important patterns:
@@ -78,7 +78,7 @@ For classification tasks, we can apply standard metrics from machine learning:
 
 These metrics tell different stories about classifier performance. High accuracy with low recall for "urgent" means you're missing critical emails. High precision but low accuracy means you're being too conservative. The confusion matrix shows you exactly which categories need better distinction in your prompts.
 
-The code in `code/classification_metrics.py` provides implementations of these standard metrics including confusion matrices and per-class precision/recall calculations.
+The code in `code/chapter-4/classification_metrics.py` provides implementations of these standard metrics including confusion matrices and per-class precision/recall calculations.
 
 ### Iterating on Classification Prompts
 
@@ -94,4 +94,4 @@ The beauty of LLM-based classification is that you can improve performance by re
 
 Each prompt change can be evaluated using the metrics above. Did accuracy improve? Did the confusion matrix change? This tight feedback loop makes prompt engineering for classification tasks particularly tractable.
 
-The example code in `code/email_classifier.py` and `code/classification_metrics.py` provides a complete framework for evaluating classification tasks with metrics tracking.
+The example code in `code/chapter-4/email_classifier.py` and `code/chapter-4/classification_metrics.py` provides a complete framework for evaluating classification tasks with metrics tracking.
