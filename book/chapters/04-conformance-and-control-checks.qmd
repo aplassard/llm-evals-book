@@ -510,14 +510,14 @@ However, this flexibility comes with challenges. The model might generate text t
 
 Let's build a simple email priority classifier that demonstrates evaluation patterns for classification tasks. First, we define the schema for our classification result:
 
-```{.python include="code/email_classifier.py" snippet="schema"}
+```{.python include="../code/email_classifier.py" snippet="schema"}
 ```
 
 This Pydantic model ensures our classification always returns a valid priority level and includes reasoning for transparency.
 
 Now we implement the classifier function that calls the LLM:
 
-```{.python include="code/email_classifier.py" snippet="classify"}
+```{.python include="../code/email_classifier.py" snippet="classify"}
 ```
 
 This example demonstrates several important patterns:
