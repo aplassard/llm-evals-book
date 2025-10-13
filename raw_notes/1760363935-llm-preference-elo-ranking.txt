@@ -1,0 +1,33 @@
+Okay, so let's discuss one thing in the LLM as a judge section of the book,
+and that is around preference and quality in how we build LLM-based applications.
+So much of the book is based on the ideas of static, true, et cetera, like definably true results, right?
+Where you can say this is the definitive answer to this problem, did the model get it right or wrong,
+or did the model accomplish the task fully, did it call the right tool,
+et cetera, right?
+So a lot of those are very straightforward and clear to define and relatively straightforward and clear to assess.
+But there are cases where there may be more subjectivity in the response.
+And an example of what that might be would be something along the lines of writing an email for you.
+In writing an email, there are going to be certain things that are clearly definable.
+And, like, did we, you know, did you respond fully to the prompt?
+Did you answer all the questions in the previous email?
+Things like that.
+And, I mean, some of that is variable, right?
+Like, you might not always want to answer all the questions or, you know, complete things fully in some ways.
+But then there's going to be more of, like, the subjective, like, is one response to an email better than another based on style, content, personal preference?
+And that requires a different type of evaluation because it is more subjective.
+And a common way to do that is with ELO scores, E-L-O.
+And what that is, is the ability of, or that is, like, comparing two responses against each other and then having their responses ladder up to a score for it.
+So, like, kind of like the underlying idea is you can think of any two models as competing at a given time.
+And is model A better than model B?
+You can determine that by answering the same prompt with both models and then picking which one of the responses you like more based on your personal preference.
+And so that's the idea of an ELO score is that then that results in a score for preferences for you as your preferences.
+Now, early on, when you're building it out, this is going to be a highly manual process to do so.
+And what I mean by that is you're going to need to run tens or hundreds of these examples and make these determinations yourself.
+And you're going to end up needing to build out your own ELO ranking of a number of models answering or completing a particular task.
+Once you then have your ELO ranking, what you can then do is have a number of other models then run the same comparisons, right, where they're given two different answers to a problem and they're asked to solve those two answers.
+And that way you can then those models can build an ELO score as well.
+And so that's how we can then start to build preference into this idea.
+Now, one thing I don't know is ELO is inherently binary right now.
+But is there any way we can make it like ternary or multi-parameter in a way to get results more efficiently?
+So that'd be something worth investigating.
+So that'd be something worth investigating.

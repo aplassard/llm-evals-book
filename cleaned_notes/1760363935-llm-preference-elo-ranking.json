@@ -1,0 +1,112 @@
+{
+  "text_summary": "The speaker discusses handling subjective quality and personal preference in LLM-based applications (chapter section: LLM as a judge). Many evaluation targets in the book are objectively verifiable, but tasks like writing emails include subjective dimensions (style, tone, preference) that require different evaluation methods. Pairwise preference systems such as Elo can be used: humans compare two responses to the same prompt and build an Elo ranking. Initially this is manual and requires many comparisons, but once a seed ranking exists, other models can be used to judge pairwise comparisons to scale preference signals. The speaker flags a research question: Elo is inherently binary (pairwise); can it be extended to ternary or multi-parameter comparisons to gain efficiency?",
+  "notes": [
+    "Objective LLM evaluation (definitively true/false tasks) is straightforward to define and assess.",
+    "Many real-world tasks (e.g., writing an email) combine objective checks with subjective qualities like style and personal preference.",
+    "Subjective evaluation needs different methods; pairwise preference comparison (Elo) is a common approach.",
+    "Elo works by comparing two outputs for the same prompt and recording which one is preferred, producing a ranking over time.",
+    "Early-stage preference collection is manual and requires tens to hundreds of comparisons to build a reliable Elo ranking.",
+    "After an initial human-derived Elo ranking, other models can be used to perform comparisons to scale the ranking process.",
+    "Using models as judges can bootstrap and multiply preference data, but initial human calibration is necessary.",
+    "Open research question: Elo is essentially binary; investigate whether ternary or multi-option rating systems can be designed to increase efficiency.",
+    "Consider evaluation design trade-offs: completeness (answering all questions) versus stylistic preference (tone, brevity, formality).",
+    "Preference modeling should capture user-specific preferences rather than only global model rankings."
+  ],
+  "articles_to_find": [
+    {
+      "name": "Elo rating system (Arpad Elo)",
+      "details": "Foundational description of Elo used for pairwise comparisons and ranking; formulas for rating updates used as baseline for pairwise preference aggregation.",
+      "status": "known"
+    },
+    {
+      "name": "TrueSkill (Microsoft Research)",
+      "details": "Extension of Elo to multiplayer and draws with uncertainty estimation; useful to study when comparing more than two outputs or modeling rater uncertainty.",
+      "status": "unknown"
+    },
+    {
+      "name": "Glicko and Glicko-2 rating systems",
+      "details": "Elo-like systems that include rating volatility and uncertainty; relevant for modeling changing preferences or sparse comparisons.",
+      "status": "unknown"
+    },
+    {
+      "name": "Bradley-Terry model and Plackett-Luce model",
+      "details": "Statistical models for pairwise and multi-item ranking from comparisons; look for estimation procedures and extensions to multi-option outcomes.",
+      "status": "unknown"
+    },
+    {
+      "name": "Preference learning and ranking from pairwise comparisons in ML",
+      "details": "Survey or tutorial on learning-to-rank using pairwise preferences; active learning strategies to select informative pairs to compare.",
+      "status": "unknown"
+    },
+    {
+      "name": "Model-as-judge or synthetic annotator literature",
+      "details": "Papers describing using language models to perform evaluations or annotate other models' outputs; include discussion of biases and calibration.",
+      "status": "unknown"
+    },
+    {
+      "name": "RLHF (Reinforcement Learning from Human Feedback) and preference-based RL",
+      "details": "Methods for training policies/models from human preference data; look for scoring/ranking mechanisms and pairwise comparison use.",
+      "status": "known"
+    },
+    {
+      "name": "Crowdsourced preference aggregation best practices",
+      "details": "Guides on designing pairwise comparison tasks, quality control, inter-rater reliability, and scaling human preference collection.",
+      "status": "unknown"
+    },
+    {
+      "name": "Multi-criteria decision analysis and multi-parameter ranking methods",
+      "details": "Methods that combine multiple attributes (e.g., correctness, tone, brevity) into composite scores; see how to integrate with preference data.",
+      "status": "unknown"
+    }
+  ],
+  "topics_to_review": [
+    {
+      "topic": "Designing evaluations for subjective LLM tasks",
+      "details": [
+        "Distinguish objective checks (did it answer the questions) from subjective criteria (tone, clarity, politeness).",
+        "Define measurable sub-criteria for email writing (completeness, conciseness, tone match, call-to-action clarity).",
+        "Design pairwise comparison prompts and rating instructions to elicit consistent judgments."
+      ]
+    },
+    {
+      "topic": "Pairwise preference systems and extensions",
+      "details": [
+        "Study Elo basics and limitations for non-binary/ternary outcomes.",
+        "Investigate TrueSkill, Glicko, Bradley-Terry, and Plackett-Luce as alternatives/extensions.",
+        "Explore multi-option comparison models and efficient algorithms for converting comparisons into rankings."
+      ]
+    },
+    {
+      "topic": "Scaling preference collection",
+      "details": [
+        "Workflows for seeding rankings with human judgments and then using models-as-judges to scale.",
+        "Quality control when using synthetic judges: calibration, bias detection, and periodic human audits.",
+        "Active learning strategies to pick the most informative pairs for labeling to reduce required comparisons."
+      ]
+    },
+    {
+      "topic": "Multi-parameter and ternary comparison ideas",
+      "details": [
+        "Define what a ternary comparison would mean (better/same/worse or choose best of three) and how to update ratings.",
+        "Look for mathematical generalizations of Elo or probabilistic ranking models that accept multi-way outcomes.",
+        "Assess efficiency gains vs. added complexity and potential rater confusion."
+      ]
+    },
+    {
+      "topic": "Using preference data in training and productization",
+      "details": [
+        "How to incorporate Elo-style rankings into model selection, prompting strategies, or RLHF pipelines.",
+        "Design for per-user preference profiles vs global rankings to personalize outputs (email tone, verbosity).",
+        "Metrics to track over time: rating stability, inter-annotator agreement, impact on downstream user satisfaction."
+      ]
+    },
+    {
+      "topic": "Practical annotation and UX considerations",
+      "details": [
+        "Annotation interface designs for pairwise or multi-option comparisons to minimize cognitive load.",
+        "Instructions and examples for raters to ensure consistent judgments (especially for subjective criteria).",
+        "Guidelines for when to require completeness checks vs stylistic preference comparisons."
+      ]
+    }
+  ]
+}
