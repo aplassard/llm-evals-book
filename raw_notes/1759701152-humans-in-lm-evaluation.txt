@@ -1,0 +1,92 @@
+Okay, so I want us to put some effort into the chapter on the role of humans in the evaluation of LM-based applications and in particular like I think there's a few places where humans play a key role in this process and the first is probably obvious, but there's nuance to it and what that role is or what we're doing there.
+Doing there is understanding the system, understanding the requirements, understanding what good books like and then defining those constraints and being able to be quantitative about that.
+I think the few obvious measures to understand are latency, costs and quality and we can get into those more and more, especially in the system design chapter that will be later on in the book.
+But I think it's imperative to really understand those characteristics and to understand what different trade-offs and be made in this process to get better or worse performance against those characteristics.
+LM-based applications in a lot of ways resemble existing machine learning applications where there is a stochastic layer in the process that is likely going to accomplish one of three things in the problem number one.
+It would be increased the efficiency of the system.
+So that would take look like taking manual work off of a person and doing it more efficiently and doing just being more effective by not having people like as directly involved in that process.
+So the removal of manual work and it probably there's probably room for some nuance around what that looks like but that is the second is improving the accuracy of a system at play.
+So LMs have an advantage in that they can consume a lot of information very, very quickly and they can then process that information and do whatever they need to with that information assuming it is actionable.
+And I think there might be like a tie in here around needle in the haystack problems in the like bell and now I'm text window literature that's worth like mention it.
+But I'd be curious to like just get the notes on that and see how relevant it is.
+So that's the the accuracy piece of it obviously context window plays him to latency and efficiency piece of it and cost as well.
+So a lot of interesting tie ends there.
+And then the next piece of this then gets to.
+So the idea of actually saying time of viewing the system that you're building.
+And you know what I mean by that is in many of these cases it will be a fairly complex.
+A gender workflow where there are multiple calls between systems the LM is.
+Having to make decisions use tools etc and getting the weeds of what it's doing and understanding the actual dynamics of the systems is incredibly valuable in doing so.
+And there's a few reasons for that.
+First by looking at those logs and understanding the back and forth right offs.
+You can then begin to understand better where your system is going well where's going poorly and then also what you want to measure throughout the system.
+So you know one one thing that you may learn as an example is your model is always calling.
+An extra tool or two during the process and taking more turns than it needs to.
+Just solve the problem and that immediately begins to be something that you can measure in the system and begins to be something that.
+You know it is a.
+Like relevant piece.
+Well, the thing to know, but you can also then think about how to design into your property.
+But even in the simplest possible scenario of a like single turn.
+Application.
+There's still value to the human in the loop of that process.
+And what that looks like is the person being understanding what's happening and understanding the decisions that are made.
+So what let's take this simple example of.
+Placifying an email.
+And determine it like a routing decision for an email for an email assistant.
+And you know, like this is not hard.
+Ask.
+But I think there's a lot of nuance to how you might design the prompting and context for that problem.
+So within that.
+Problem.
+Like what you might think about is what is the right information to give to the model.
+And in reviewing responses.
+Maybe you'll learn that the model is never determining like that your.
+You know, your boss is your boss and those emails should always be high priority.
+Or something like that.
+Right, and then that will give you feedback and context and knowing that that is the kind of thing that should be.
+You should be looking.
+And another example in that case is like maybe the email assistant has like a multiple tags type system.
+Where you want to tag the email with various characteristics.
+And maybe learn the model is never tagging things of certain tags or is always missing tagging the certain circumstances.
+Manually reviewing the system.
+And the data helps you to better see what exactly it is that you want some measure.
+Right, there are tons of standard statistics and standard things that can be measured.
+But manually reviewing it actually taking the time to understand that is an immensely useful thing to do so definitely like getting in the weeds of it becomes valuable.
+Okay, so that leads to the next point.
+That's worth understanding.
+And that is reproducibility of results.
+Now some metrics will be on ambiguous.
+Well, there, there, there's a clear right or wrong result for the metric and.
+You know, that that might be a.
+Um, basically they're like one person's preference.
+That is the sole person to interest for it or a like clear decision that should be made.
+But in a lot of cases, there is more ambiguity to it than that.
+So.
+Like the way to think about this.
+We'd be like.
+This.
+The system.
+Is to make a decision about.
+I don't know what color something should be in an image or something like that.
+I don't know that that's not a great example. We can probably find a better example than that.
+But like there might be some.
+Interrater reproducibility that should be measured.
+And in that case, what what you would what you want to do is if there are really important metrics for your system or really important things to measure where there is some ambiguity in it.
+Actually understand the reproducibility between two humans.
+Right.
+So and what what that means is if you have not one uter.
+But two.
+Reviewing a result or three or more.
+How likely is it that they will all come to the same answer in the process.
+And if that's the case.
+That helps you put some guardrails around the performance of.
+The model.
+So in the good of an example of this in an L and based application.
+But I'm not sure what that might be off a tapping head.
+So interrater reproducibility.
+And I think like those metrics like Cohen's capa and things like that that are useful to understand.
+In this context.
+But I don't know if they are off tap my head.
+So I think looking up some like interrater reproducibility measures.
+And then identifying ones that are more useful for this type of application.
+We'll be great.
+Okay.
