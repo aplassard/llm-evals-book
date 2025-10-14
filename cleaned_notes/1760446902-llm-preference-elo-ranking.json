@@ -1,0 +1,103 @@
+{
+  "text_summary": "The speaker contrasts objective, definable evaluation tasks for LLM apps (e.g., correctness, tool usage, completeness) with subjective preference-based tasks (e.g., writing style for emails). For subjective cases, pairwise comparison ranking (ELO) is a common approach: humans compare two responses and produce a relative ordering that accumulates to a score. Early stages require many manual pairwise judgments to build an ELO ladder; later, other models can be used as automated judges to scale labeling. The speaker suggests investigating whether ELO's binary pairwise framework can be generalized to ternary or multi-parameter comparisons to improve efficiency.",
+  "notes": [
+    "Distinguish between objective/definable evaluation metrics and subjective preference-based evaluation when designing LLM applications.",
+    "Objective checks include whether the model produced the definitive answer, called the correct tool, or fully addressed prior questions.",
+    "Subjective tasks (for example, drafting an email) have aspects that are harder to judge objectively, such as style and personal preference.",
+    "Pairwise comparisons with ELO scoring are a common way to capture subjective preferences by having judges pick preferred responses between pairs.",
+    "Building a reliable ELO ranking initially requires tens or hundreds of manual pairwise judgments to establish baseline preferences.",
+    "Once a human-derived ELO ladder exists, other models can be asked to act as judges on pairwise comparisons to scale preference labeling.",
+    "ELO as described is inherently binary (pairwise wins/losses); the speaker proposes researching ternary or multi-parameter extensions to increase efficiency.",
+    "Combining objective pass/fail checks with preference-based ranking can produce richer evaluation and more actionable signals for product improvements.",
+    "Labeling strategy design matters: consider where manual judgments are required versus where automated/model-as-judge approaches are acceptable.",
+    "Key follow-up is to survey alternative ranking and probabilistic models (Bradley-Terry, Plackett-Luce, TrueSkill) and multi-criteria or continuous scoring approaches."
+  ],
+  "articles_to_find": [
+    {
+      "name": "Elo rating system (origin/description)",
+      "details": "Foundational description of the Elo system (Arpad Elo) explaining pairwise win/loss-based rating updates and mathematical foundations; useful for mapping pairwise preference->score.",
+      "status": "known"
+    },
+    {
+      "name": "Bradley-Terry model",
+      "details": "Statistical model for pairwise comparison data that estimates latent scores; look for formulation, estimation methods, and extensions for ties/multi-way comparisons.",
+      "status": "unknown"
+    },
+    {
+      "name": "Plackett-Luce model",
+      "details": "Probabilistic model for ranking from multi-item comparisons (not just pairwise); useful if moving beyond binary comparisons to n-way choices.",
+      "status": "unknown"
+    },
+    {
+      "name": "TrueSkill: a Bayesian skill rating system",
+      "details": "Microsoft TrueSkill paper describing a Bayesian alternative to Elo that models uncertainty and supports multiplayer matches and draws; relevant for extensions to richer judgments.",
+      "status": "unknown"
+    },
+    {
+      "name": "Deep Reinforcement Learning from Human Preferences (Christiano et al., 2017) / RLHF methods",
+      "details": "Papers and docs about collecting human pairwise preference data and using it to train reward models for RL and supervised fine-tuning (e.g., InstructGPT/RLHF workflows); useful precedent for model-as-judge scaling.",
+      "status": "unknown"
+    },
+    {
+      "name": "Thurstone's law of comparative judgment",
+      "details": "Early psychometric model for pairwise comparisons and scaling; helpful historical background and alternative statistical formulation.",
+      "status": "unknown"
+    },
+    {
+      "name": "Survey/paper on preference elicitation and ranking algorithms",
+      "details": "A comprehensive review of methods for preference learning, active sampling for pairwise comparisons, and multi-criteria decision analysis (MCDA); look for best practices on sampling efficiency.",
+      "status": "unknown"
+    },
+    {
+      "name": "Extensions of Elo to multi-outcome or multi-parameter ratings",
+      "details": "Research or implementations that adapt Elo for ternary outcomes, multi-dimensional skills, or continuous judgments; search for papers or engineering blog posts exploring non-binary updates.",
+      "status": "unknown"
+    }
+  ],
+  "topics_to_review": [
+    {
+      "topic": "Alternatives and extensions to Elo",
+      "details": [
+        "Compare Elo, Bradley-Terry, Plackett-Luce, TrueSkill and Thurstone in terms of assumptions and outputs.",
+        "Investigate models that support n-way comparisons, ties, uncertainty estimates, and multi-dimensional skill vectors.",
+        "Look for prior art on ternary/multi-outcome Elo-like algorithms or practical heuristics."
+      ]
+    },
+    {
+      "topic": "Scaling preference labeling",
+      "details": [
+        "Best practices for bootstrapping from a small human-labeled pairwise dataset to larger automated labeling using models as judges.",
+        "Risks and calibration issues when models judge other models (bias amplification, overfitting to model priors).",
+        "Active learning strategies to choose the most informative pairwise comparisons to label."
+      ]
+    },
+    {
+      "topic": "Combining objective checks with subjective preference scores",
+      "details": [
+        "Design hybrid evaluation pipelines where hard pass/fail checks feed into filtering and preference ranking handles stylistic choices.",
+        "How to weight or aggregate objective constraints and preference-based rankings for end-to-end quality metrics."
+      ]
+    },
+    {
+      "topic": "Label efficiency and multi-parameter judgments",
+      "details": [
+        "Explore ternary or graded judgments (better/equal/worse, or Likert scales) and methods to map them into rating systems.",
+        "Examine multi-criteria evaluation (e.g., correctness, tone, brevity) and how to merge multi-criteria scores into a single ranking."
+      ]
+    },
+    {
+      "topic": "Evaluation validation and reliability",
+      "details": [
+        "Inter-annotator agreement metrics for pairwise and multi-class preference labels (Cohen's kappa, Krippendorff's alpha).",
+        "Approaches to validate model-as-judge performance against held-out human judgments."
+      ]
+    },
+    {
+      "topic": "Product implications and personalization",
+      "details": [
+        "How to incorporate individual user preferences into per-user ELO/ranking systems and adapt over time.",
+        "UX considerations for collecting preference signals from real users with minimal friction."
+      ]
+    }
+  ]
+}
