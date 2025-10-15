@@ -1,0 +1,98 @@
+{
+  "text_summary": "Idea sketch: build an LLM-as-judge that detects clearly AI-generated text in submitted content (forms, emails, etc.) by looking for recurring stylistic patterns (examples cited: frequent em-dash use; phrases like \"it's not X, it's XXXXX\"). Use pattern detection both to flag AI-generated submissions and to analyze responses to them. Concept is exploratory and not fully fleshed out.",
+  "notes": [
+    "Propose using an LLM to judge whether submitted text (forms, emails) is clearly AI-generated.",
+    "Look for recurring stylistic patterns that tend to appear in AI-generated text.",
+    "Two example patterns mentioned: frequent use of em-dash and constructions like \"it's not X, it's XXXXX\" (repetitive/formulaic phrasing).",
+    "Aggregate pattern detection could be a pragmatic way to detect obvious AI-generated speech/content.",
+    "The system could also evaluate responses to flagged AI-generated text (how people react or reply).",
+    "This is an initial, informal idea and needs further specification, testing, and evaluation."
+  ],
+  "articles_to_find": [
+    {
+      "name": "Survey papers and tooling on detecting machine-generated text",
+      "details": "Look for recent surveys and reviews that summarize detection approaches (statistical features, classifiers, watermarking, forensic tools). Include practical tools (GLTR, DetectGPT, OpenAI blog posts) and comparisons of methods.",
+      "status": "unknown"
+    },
+    {
+      "name": "Research on GLTR or similar statistical-detection tools",
+      "details": "Find GLTR descriptions and evaluations: how token probability distributions and anomalous token selection indicate generated text; strengths/limitations on short vs. long texts.",
+      "status": "unknown"
+    },
+    {
+      "name": "DetectGPT and related adversarial-detection papers",
+      "details": "Locate DetectGPT and follow-ups that propose detecting generated text via model-based perturbations or likelihood-based signals; note performance and robustness against paraphrasing.",
+      "status": "unknown"
+    },
+    {
+      "name": "Papers or analyses on stylistic markers (punctuation, em-dash, repetition)",
+      "details": "Search for studies that quantify punctuation and syntactic usage differences between human and model text (e.g., em-dash frequency, quotation/punctuation patterns, repeated phrases).",
+      "status": "unknown"
+    },
+    {
+      "name": "Datasets for human vs. machine text classification",
+      "details": "Find benchmark datasets used for detection tasks (human-written vs model-generated across domains) and note their domain coverage, length distribution, and labeling quality.",
+      "status": "unknown"
+    },
+    {
+      "name": "Work on model-of-model detection limits and false positive analysis",
+      "details": "Locate research discussing failure modes, adversarial paraphrasing, false positive rates, and how human writing can be misclassified as machine-generated.",
+      "status": "unknown"
+    },
+    {
+      "name": "Guidance and ethics papers on labeling content as AI-generated",
+      "details": "Find policy or ethics literature on consequences of mislabeling, disclosure practices, transparency, and user notification/appeal processes.",
+      "status": "unknown"
+    }
+  ],
+  "topics_to_review": [
+    {
+      "topic": "Heuristic stylistic markers to test",
+      "details": [
+        "Punctuation usage (em-dash frequency, spacing, ellipses) compared to human baselines",
+        "Formulaic or repetitive constructions (e.g., \"it's not X, it's Y\" patterns, templated phrasing)",
+        "Unusual token repetition or elongated tokens (e.g., 'sooooo')",
+        "Lexical richness/variety and verbosity measures",
+        "Sentence length distribution and syntactic regularities",
+        "Use of transition phrases and high-probability n-grams"
+      ]
+    },
+    {
+      "topic": "LLM-as-judge system design considerations",
+      "details": [
+        "Input types: short form entries, emails, longer essays — different thresholds per type",
+        "Feature engineering: combine simple heuristics with classifier probabilities",
+        "Human-in-the-loop: review flagged cases to reduce false positives",
+        "Explainability: produce interpretable signals (which patterns triggered the flag)",
+        "Operational workflow: triage, notification, appeals, and remediation"
+      ]
+    },
+    {
+      "topic": "Evaluation and benchmarking",
+      "details": [
+        "Select datasets representing real submission channels (forms, emails, forum posts)",
+        "Metrics: precision/recall, false positive rate, calibration, AUC",
+        "Adversarial testing: paraphrasing, editing to evade detectors",
+        "Cross-model generalization: detectors trained on one generator should work on others"
+      ]
+    },
+    {
+      "topic": "Ethics, policy, and user experience",
+      "details": [
+        "Risks of false positives and reputational harm to submitters",
+        "Transparency: how to communicate detection results and uncertainty",
+        "Legal implications for enforcement or automated actions",
+        "Designing appeals and human review pathways"
+      ]
+    },
+    {
+      "topic": "Follow-up research and experiments to run",
+      "details": [
+        "Quantify frequency of em-dash and other punctuation in human vs. model text",
+        "Extract and cluster common formulaic phrases from model outputs",
+        "Build a lightweight classifier combining heuristics and LLM-based scoring",
+        "Run pilot on anonymized form/email corpus and measure error modes"
+      ]
+    }
+  ]
+}
