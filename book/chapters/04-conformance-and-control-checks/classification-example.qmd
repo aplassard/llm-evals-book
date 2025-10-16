@@ -1,3 +1,0 @@
-## Classification example
-
-The example in `code/chapter-4/classification_example.py` outlines a simple classification harness that records probabilities, applies thresholds, and emits audit-friendly logs.

@@ -8,6 +8,4 @@ title: "Conformance & Control Checks"
 
 {{< include 04-conformance-and-control-checks/routing-classification.qmd >}}
 
-{{< include 04-conformance-and-control-checks/formatting-example.qmd >}}
-
-{{< include 04-conformance-and-control-checks/classification-example.qmd >}}
+{{< include 04-conformance-and-control-checks/practical-example.qmd >}}
