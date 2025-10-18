@@ -1,0 +1,183 @@
+## A Practical Example
+
+Let's work through a complete example that demonstrates both format validation and classification evaluation on real data. We'll analyze product reviews from the Amazon Reviews 2023 dataset, validating that our LLM produces correctly structured outputs and accurately classifies sentiment.
+
+### The Task
+
+We want to build a review analysis system that:
+
+1. **Extracts structured information**: sentiment, confidence, key themes, and recommendation
+2. **Produces valid outputs**: conforms to a defined schema every time
+3. **Classifies accurately**: matches sentiment to the actual star rating
+
+This mirrors a real-world scenario where you need both structural reliability (will my downstream systems work?) and semantic correctness (are the answers right?).
+
+### Defining the Schema
+
+First, we define what a valid analysis looks like using Pydantic:
+
+```{.python include="code/chapter-4/practical_example.py" snippet="schema"}
+```
+
+This schema is simpler than our earlier product review example—we've focused on the fields that matter most for demonstrating evaluation patterns. Notice we're using `Literal` for sentiment to ensure the model picks from exactly three options.
+
+### Analyzing Reviews
+
+Here's our function that calls the LLM to analyze a review:
+
+```{.python include="code/chapter-4/practical_example.py" snippet="analyze_review"}
+```
+
+Key decisions in this implementation:
+
+**Truncation**: We limit reviews to 500 characters to manage token costs. In production, you'd need to decide whether truncation is acceptable or if you need summarization for long reviews.
+
+**Explicit schema in prompt**: We spell out exactly what JSON structure we want, including field names and types. This prompt engineering is critical for high conformance rates.
+
+**Temperature**: We use 0.3 for consistency while allowing some variation in how themes are expressed.
+
+### Validating the Output
+
+Once we have the LLM's response, we need to validate it:
+
+```{.python include="code/chapter-4/practical_example.py" snippet="validate_and_parse"}
+```
+
+This function handles two failure modes:
+
+1. **JSON parsing failures**: The output isn't valid JSON at all
+2. **Schema violations**: Valid JSON but wrong structure
+
+By returning both the success status and the specific error, we can diagnose what's going wrong.
+
+### Establishing Ground Truth
+
+For classification evaluation, we need ground truth labels. With product reviews, we can derive expected sentiment from star ratings:
+
+```{.python include="code/chapter-4/practical_example.py" snippet="ground_truth"}
+```
+
+This simple heuristic works well: 4-5 stars are positive, 3 stars are neutral, 1-2 stars are negative. It's not perfect (someone might give 5 stars but write a negative review), but it's good enough for evaluation.
+
+### Evaluating a Single Review
+
+Now we can put it all together and evaluate a review end-to-end:
+
+```{.python include="code/chapter-4/practical_example.py" snippet="evaluate_single"}
+```
+
+This function demonstrates the complete evaluation workflow:
+
+1. Call the LLM to analyze the review
+2. Validate the output format
+3. Compare predicted sentiment to expected sentiment
+4. Return structured results for aggregation
+
+When we run this on a real review, here's what we see:
+
+```
+======================================================================
+Rating: 5.0/5.0
+Title: Love this product!
+Review: This is exactly what I needed. Great quality and fast shipping...
+
+Expected sentiment: positive
+✓ Format valid
+  Predicted: positive
+  Confidence: 0.95
+  Themes: quality, shipping, value
+  Would recommend: True
+✓ Classification correct
+```
+
+The output shows us both format conformance (valid JSON matching our schema) and classification accuracy (predicted sentiment matches the rating). This dual evaluation tells us our system is working correctly on this example.
+
+### When Things Go Wrong
+
+Not every output will be perfect. Here's what a format failure looks like:
+
+```
+======================================================================
+Rating: 3.0/5.0
+Title: It's okay
+Review: Works as described but nothing special...
+
+Expected sentiment: neutral
+✗ Format invalid: JSON parsing failed: Expecting property name enclosed in double quotes
+  Raw output preview: Here's my analysis: {"sentiment": "neutral", confidence: 0.7...
+```
+
+The model wrapped the JSON in explanatory text and had a syntax error (missing quotes around `confidence`). This is exactly why we validate—we catch these issues before they break downstream systems.
+
+And here's a classification error:
+
+```
+======================================================================
+Rating: 2.0/5.0
+Title: Disappointed
+Review: Broke after two weeks. Waste of money...
+
+Expected sentiment: negative
+✓ Format valid
+  Predicted: neutral
+  Confidence: 0.6
+  Themes: durability, value, quality
+  Would recommend: False
+✗ Classification incorrect (expected negative)
+```
+
+The format is perfect, but the model classified a 2-star review as neutral instead of negative. The low confidence (0.6) suggests the model was uncertain. This could indicate we need clearer sentiment boundaries in our prompt.
+
+### Aggregate Results
+
+When we run this evaluation across diverse examples (one review at each star rating), we get:
+
+```
+AGGREGATE RESULTS
+======================================================================
+
+Format Conformance:
+  Valid outputs: 5/5 (100%)
+  Parse failures: 0
+
+Classification Accuracy:
+  Correct predictions: 4/5 (80%)
+
+Error Analysis:
+  Total issues: 1
+  Misclassifications: 1
+```
+
+This tells us:
+
+**Format conformance is excellent**: Every output matches our schema. Our prompt engineering for structure is working.
+
+**Classification is good but not perfect**: 80% accuracy with one misclassification. The error was the 2-star review classified as neutral—a boundary case where the model was uncertain.
+
+**Next steps**: Add few-shot examples showing clear negative reviews to help the model distinguish neutral from negative sentiment.
+
+### Running the Example Yourself
+
+The complete implementation is in `code/chapter-4/practical_example.py`. You can run it to see the full evaluation:
+
+```bash
+python code/chapter-4/practical_example.py
+```
+
+This will process five reviews (one at each rating level) and show you the detailed evaluation output including intermediate steps, validation results, and aggregate metrics.
+
+### What This Example Teaches
+
+This practical example demonstrates several key evaluation patterns:
+
+**Separate format and semantic evaluation**: First check that outputs are structurally valid, then evaluate whether they're semantically correct. These are different failure modes requiring different solutions.
+
+**Use intermediate outputs for debugging**: By showing each step (raw output, validation result, classification prediction), you can diagnose exactly where issues occur.
+
+**Ground truth from proxy signals**: When you can't get human labels, use proxy signals like star ratings. They're imperfect but good enough for evaluation.
+
+**Aggregate metrics tell the story**: Individual examples show patterns, but aggregate metrics (conformance rate, accuracy) tell you whether your system is ready for production.
+
+**Confidence calibration matters**: When the model is uncertain (low confidence), it's more likely to be wrong. Track confidence alongside predictions to know when outputs need human review.
+
+This end-to-end workflow—from schema definition through validation to classification evaluation with real data—is the foundation for evaluating LLM applications that produce structured outputs. Apply these patterns to your own use cases, adjusting the schema and ground truth strategy to match your domain.

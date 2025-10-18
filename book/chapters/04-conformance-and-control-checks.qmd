@@ -1,21 +1,11 @@
-# Conformance & Control Checks
+---
+title: "Conformance & Control Checks"
+---
 
-## Format Matching
+{{< include 04-conformance-and-control-checks/intro.qmd >}}
 
-Ensuring outputs comply with expected schemas prevents downstream breakages. This section reviews prompt engineering tricks, structured output requests, and automated validation utilities.
+{{< include 04-conformance-and-control-checks/format-matching.qmd >}}
 
-### LLM healing
+{{< include 04-conformance-and-control-checks/routing-classification.qmd >}}
 
-When model responses deviate from the required format, a secondary "healing" pass can repair the structure without re-running the full task. We explore techniques for building healers that are transparent, measurable, and integrated into CI workflows.
-
-## Routing and Classification
-
-Routing helps direct requests to specialized models or templates, while classification verifies that responses meet policy constraints. We examine decision boundaries, confidence scoring, and fallback strategies.
-
-## Formatting example
-
-The accompanying code sample in `code/formatting_example.py` demonstrates how to detect schema violations and apply corrective transformations before evaluating the result.
-
-## Classification example
-
-The example in `code/classification_example.py` outlines a simple classification harness that records probabilities, applies thresholds, and emits audit-friendly logs.
+{{< include 04-conformance-and-control-checks/practical-example.qmd >}}
